@@ -1,8 +1,11 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (..)
+import Html exposing (Html)
+import Material.Layout as Layout
 import Task exposing (..)
 import Url exposing (Url)
 
@@ -11,7 +14,7 @@ import Url exposing (Url)
 -- MAIN
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
@@ -27,16 +30,30 @@ main =
 -- MODEL
 
 
-type alias Model =
-    { key : Nav.Key
-    , url : Url.Url
+type alias Flags =
+    WindowSize
+
+
+type alias WindowSize =
+    { width : Int
+    , height : Int
     }
 
 
-init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+type alias Model =
+    { key : Nav.Key
+    , url : Url.Url
+    , windowSize : WindowSize
+    , layout : Layout.Model
+    }
+
+
+init : Flags -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     ( { key = key
       , url = url
+      , windowSize = flags
+      , layout = Layout.defaultModel
       }
     , Cmd.none
     )
@@ -50,6 +67,7 @@ type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | ChangeUrl String
+    | WindowSizeChanged Int Int
 
 
 
@@ -73,6 +91,9 @@ update msg model =
         ChangeUrl urlPath ->
             ( model, Nav.pushUrl model.key urlPath )
 
+        WindowSizeChanged newWidth newHeight ->
+            ( { model | windowSize = WindowSize newWidth newHeight }, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -80,7 +101,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Browser.Events.onResize WindowSizeChanged
 
 
 
@@ -91,6 +112,35 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Andrii Dzhyrma"
     , body =
-        [ Element.layout [] (text "Hello World!")
+        [ body model
         ]
     }
+
+
+body : Model -> Html msg
+body model =
+    let
+        device =
+            classifyDevice model.windowSize
+    in
+    Element.layout []
+        (case device.class of
+            BigDesktop ->
+                Layout.render model
+                    [ Layout.fixedDrawer
+                    ]
+                    { header = []
+                    , drawer = []
+                    , tabs = []
+                    , main = []
+                    }
+
+            Desktop ->
+                text "Desktop"
+
+            Tablet ->
+                text "Tablet"
+
+            Phone ->
+                text "Phone"
+        )
