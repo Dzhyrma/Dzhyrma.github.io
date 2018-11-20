@@ -1,7 +1,32 @@
-module Material.Options exposing (Property)
+module Material.Options exposing (Property, cs, css, none, styled)
 
-import Material.Options.Internal as Internal
+import Element exposing (Attribute)
+import Material.Options.Internal as Internal exposing (..)
 
 
 type alias Property config msg =
     Internal.Property config msg
+
+
+none : Property config msg
+none =
+    None
+
+
+cs : String -> Property config msg
+cs name =
+    Class name
+
+
+css : String -> String -> Property config msg
+css key value =
+    CSS ( key, value )
+
+
+styled : (List (Attribute m) -> a) -> List (Property c m) -> a
+styled element props =
+    element
+        (addAttributes
+            (collect_ props)
+            []
+        )

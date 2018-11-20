@@ -129,7 +129,7 @@ body model =
                 Layout.render model
                     [ Layout.fixedDrawer
                     ]
-                    { header = []
+                    { header = header model
                     , drawer = []
                     , tabs = []
                     , main = []
@@ -144,3 +144,8 @@ body model =
             Phone ->
                 text "Phone"
         )
+
+
+header : Model -> List (Element msg)
+header model =
+    []

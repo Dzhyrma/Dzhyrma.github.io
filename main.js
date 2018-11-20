@@ -5650,6 +5650,9 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 		}
 	});
+var author$project$Main$header = function (model) {
+	return _List_Nil;
+};
 var author$project$Material$Options$Internal$Set = function (a) {
 	return {$: 'Set', a: a};
 };
@@ -5660,6 +5663,121 @@ var author$project$Material$Layout$fixedDrawer = author$project$Material$Options
 			config,
 			{fixedDrawer: true});
 	});
+var author$project$Material$Layout$Standard = {$: 'Standard'};
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var author$project$Material$Layout$defaultConfig = {fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, transparentHeader: false};
+var author$project$Material$Options$Internal$Summary = F5(
+	function (classes, css, attrs, internal, config) {
+		return {attrs: attrs, classes: classes, config: config, css: css, internal: internal};
+	});
+var author$project$Material$Options$Internal$collect1_ = F2(
+	function (property, summary) {
+		switch (property.$) {
+			case 'Class':
+				var entry = property.a;
+				return _Utils_update(
+					summary,
+					{
+						classes: A2(elm$core$List$cons, entry, summary.classes)
+					});
+			case 'CSS':
+				var entry = property.a;
+				return _Utils_update(
+					summary,
+					{
+						css: A2(elm$core$List$cons, entry, summary.css)
+					});
+			case 'Internal':
+				var attr = property.a;
+				return _Utils_update(
+					summary,
+					{
+						internal: A2(elm$core$List$cons, attr, summary.internal)
+					});
+			case 'Set':
+				var setter = property.a;
+				return summary;
+			default:
+				return summary;
+		}
+	});
+var author$project$Material$Options$Internal$collect_ = A2(
+	elm$core$List$foldl,
+	author$project$Material$Options$Internal$collect1_,
+	A5(author$project$Material$Options$Internal$Summary, _List_Nil, _List_Nil, _List_Nil, _List_Nil, _Utils_Tuple0));
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var author$project$Material$Icon$styled = F2(
+	function (ctor, options) {
+		var summary = author$project$Material$Options$Internal$collect_(options);
+		var htmlAttributes = _Utils_ap(
+			A2(
+				elm$core$List$map,
+				function (_n0) {
+					var key = _n0.a;
+					var value = _n0.b;
+					return A2(elm$html$Html$Attributes$style, key, value);
+				},
+				summary.css),
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class(
+					A2(elm$core$String$join, ' ', summary.classes))
+				]));
+		return ctor(htmlAttributes);
+	});
+var author$project$Material$Options$Internal$Class = function (a) {
+	return {$: 'Class', a: a};
+};
+var author$project$Material$Options$cs = function (name) {
+	return author$project$Material$Options$Internal$Class(name);
+};
+var elm$html$Html$i = _VirtualDom_node('i');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var mdgriffith$elm_ui$Internal$Model$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Unstyled, elm$core$Basics$always);
+var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
+var author$project$Material$Icon$view = F2(
+	function (name, options) {
+		return mdgriffith$elm_ui$Element$html(
+			A3(
+				author$project$Material$Icon$styled,
+				elm$html$Html$i,
+				A2(
+					elm$core$List$cons,
+					author$project$Material$Options$cs('material-icons'),
+					options),
+				_List_fromArray(
+					[
+						elm$html$Html$text(name)
+					])));
+	});
+var author$project$Material$Icon$i = function (name) {
+	return A2(author$project$Material$Icon$view, name, _List_Nil);
+};
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
 };
@@ -5719,9 +5837,6 @@ var mdgriffith$elm_ui$Internal$Model$Keyed = function (a) {
 var mdgriffith$elm_ui$Internal$Model$NoStyleSheet = {$: 'NoStyleSheet'};
 var mdgriffith$elm_ui$Internal$Model$Styled = function (a) {
 	return {$: 'Styled', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
 };
 var mdgriffith$elm_ui$Internal$Model$addChildren = F2(
 	function (existing, nearbyChildren) {
@@ -5794,15 +5909,6 @@ var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$p = _VirtualDom_node('p');
 var elm$html$Html$s = _VirtualDom_node('s');
 var elm$html$Html$u = _VirtualDom_node('u');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
 	return _VirtualDom_keyedNode(
 		_VirtualDom_noScript(tag));
@@ -6184,7 +6290,6 @@ var mdgriffith$elm_ui$Internal$Model$renderFocusStyle = function (focus) {
 					A2(mdgriffith$elm_ui$Internal$Model$Property, 'outline', 'none'))
 				])));
 };
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var mdgriffith$elm_ui$Internal$Style$Batch = function (a) {
 	return {$: 'Batch', a: a};
 };
@@ -8082,9 +8187,6 @@ var elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -9230,7 +9332,6 @@ var mdgriffith$elm_ui$Internal$Model$finalizeNode = F6(
 				return html;
 		}
 	});
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var mdgriffith$elm_ui$Internal$Model$textElement = function (str) {
 	return A2(
 		elm$html$Html$div,
@@ -10879,6 +10980,156 @@ var mdgriffith$elm_ui$Element$el = F2(
 				_List_fromArray(
 					[child])));
 	});
+var author$project$Material$Layout$drawerButton = A2(
+	mdgriffith$elm_ui$Element$el,
+	_List_Nil,
+	author$project$Material$Icon$i('menu'));
+var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
+	return {$: 'Fill', a: a};
+};
+var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
+var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
+	function (a, b, c, d) {
+		return {$: 'Rgba', a: a, b: b, c: c, d: d};
+	});
+var mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+	});
+var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
+var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
+var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		elm$html$Html$Attributes$class(cls));
+};
+var mdgriffith$elm_ui$Element$row = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asRow,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
+var mdgriffith$elm_ui$Internal$Model$Colored = F3(
+	function (a, b, c) {
+		return {$: 'Colored', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
+	function (a, b) {
+		return {$: 'StyleClass', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
+	var red = _n0.a;
+	var green = _n0.b;
+	var blue = _n0.c;
+	var alpha = _n0.d;
+	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
+};
+var mdgriffith$elm_ui$Element$Background$color = function (clr) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$bgColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'bg-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'background-color',
+			clr));
+};
+var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
+var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var author$project$Material$Layout$headerView = F3(
+	function (config, model, _n0) {
+		var headerDrawerButton = _n0.a;
+		var actionButtons = _n0.b;
+		return A2(
+			mdgriffith$elm_ui$Element$row,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$Background$color(
+					A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 0)),
+					mdgriffith$elm_ui$Element$Font$color(
+					A3(mdgriffith$elm_ui$Element$rgb, 255, 255, 255))
+				]),
+			_List_fromArray(
+				[author$project$Material$Layout$drawerButton]));
+	});
+var author$project$Material$Options$Internal$collect1 = F2(
+	function (property, summary) {
+		switch (property.$) {
+			case 'Class':
+				var entry = property.a;
+				return _Utils_update(
+					summary,
+					{
+						classes: A2(elm$core$List$cons, entry, summary.classes)
+					});
+			case 'CSS':
+				var entry = property.a;
+				return _Utils_update(
+					summary,
+					{
+						css: A2(elm$core$List$cons, entry, summary.css)
+					});
+			case 'Internal':
+				var attr = property.a;
+				return _Utils_update(
+					summary,
+					{
+						internal: A2(elm$core$List$cons, attr, summary.internal)
+					});
+			case 'Set':
+				var setter = property.a;
+				return _Utils_update(
+					summary,
+					{
+						config: setter(summary.config)
+					});
+			default:
+				return summary;
+		}
+	});
+var author$project$Material$Options$Internal$recollect = elm$core$List$foldl(author$project$Material$Options$Internal$collect1);
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var author$project$Material$Options$Internal$collect = A2(
+	elm$core$Basics$composeR,
+	A4(author$project$Material$Options$Internal$Summary, _List_Nil, _List_Nil, _List_Nil, _List_Nil),
+	author$project$Material$Options$Internal$recollect);
+var mdgriffith$elm_ui$Internal$Model$InFront = {$: 'InFront'};
+var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
+	function (a, b) {
+		return {$: 'Nearby', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$inFront = function (element) {
+	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
+};
 var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 	return {$: 'Text', a: a};
 };
@@ -10886,10 +11137,28 @@ var mdgriffith$elm_ui$Element$text = function (content) {
 	return mdgriffith$elm_ui$Internal$Model$Text(content);
 };
 var author$project$Material$Layout$render = F3(
-	function (model, properties, contents) {
+	function (model, properties, _n0) {
+		var header = _n0.header;
+		var drawer = _n0.drawer;
+		var tabs = _n0.tabs;
+		var main = _n0.main;
+		var summary = A2(author$project$Material$Options$Internal$collect, author$project$Material$Layout$defaultConfig, properties);
+		var hasDrawer = !_Utils_eq(drawer, _List_Nil);
+		var headerDrawerButton = hasDrawer ? elm$core$Maybe$Just(author$project$Material$Layout$drawerButton) : elm$core$Maybe$Nothing;
+		var config = summary.config;
 		return A2(
 			mdgriffith$elm_ui$Element$el,
-			_List_Nil,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$inFront(
+					A3(
+						author$project$Material$Layout$headerView,
+						config,
+						model.layout,
+						_Utils_Tuple2(headerDrawerButton, _List_Nil)))
+				]),
 			mdgriffith$elm_ui$Element$text('Layout'));
 	});
 var mdgriffith$elm_ui$Element$BigDesktop = {$: 'BigDesktop'};
@@ -10904,13 +11173,6 @@ var mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 		orientation: (_Utils_cmp(window.width, window.height) < 0) ? mdgriffith$elm_ui$Element$Portrait : mdgriffith$elm_ui$Element$Landscape
 	};
 };
-var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
-	return mdgriffith$elm_ui$Internal$Model$Attr(
-		elm$html$Html$Attributes$class(cls));
-};
 var mdgriffith$elm_ui$Internal$Model$OnlyDynamic = F2(
 	function (a, b) {
 		return {$: 'OnlyDynamic', a: a, b: b};
@@ -10921,10 +11183,6 @@ var mdgriffith$elm_ui$Internal$Model$StaticRootAndDynamic = F2(
 	});
 var mdgriffith$elm_ui$Internal$Model$AllowHover = {$: 'AllowHover'};
 var mdgriffith$elm_ui$Internal$Model$Layout = {$: 'Layout'};
-var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
-	function (a, b, c, d) {
-		return {$: 'Rgba', a: a, b: b, c: c, d: d};
-	});
 var mdgriffith$elm_ui$Internal$Model$focusDefaultStyle = {
 	backgroundColor: elm$core$Maybe$Nothing,
 	borderColor: elm$core$Maybe$Nothing,
@@ -11059,14 +11317,8 @@ var mdgriffith$elm_ui$Internal$Model$renderRoot = F3(
 					_List_fromArray(
 						[child]))));
 	});
-var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
-var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
 var mdgriffith$elm_ui$Internal$Flag$fontFamily = mdgriffith$elm_ui$Internal$Flag$flag(5);
 var mdgriffith$elm_ui$Internal$Flag$fontSize = mdgriffith$elm_ui$Internal$Flag$flag(4);
-var mdgriffith$elm_ui$Internal$Model$Colored = F3(
-	function (a, b, c) {
-		return {$: 'Colored', a: a, b: b, c: c};
-	});
 var mdgriffith$elm_ui$Internal$Model$FontFamily = F2(
 	function (a, b) {
 		return {$: 'FontFamily', a: a, b: b};
@@ -11075,19 +11327,8 @@ var mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
 	return {$: 'FontSize', a: a};
 };
 var mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 'SansSerif'};
-var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
-	function (a, b) {
-		return {$: 'StyleClass', a: a, b: b};
-	});
 var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
 	return {$: 'Typeface', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
-	var red = _n0.a;
-	var green = _n0.b;
-	var blue = _n0.c;
-	var alpha = _n0.d;
-	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
 };
 var elm$core$String$toLower = _String_toLower;
 var elm$core$String$words = _String_words;
@@ -11202,7 +11443,12 @@ var author$project$Main$body = function (model) {
 						model,
 						_List_fromArray(
 							[author$project$Material$Layout$fixedDrawer]),
-						{drawer: _List_Nil, header: _List_Nil, main: _List_Nil, tabs: _List_Nil});
+						{
+							drawer: _List_Nil,
+							header: author$project$Main$header(model),
+							main: _List_Nil,
+							tabs: _List_Nil
+						});
 				case 'Desktop':
 					return mdgriffith$elm_ui$Element$text('Desktop');
 				case 'Tablet':

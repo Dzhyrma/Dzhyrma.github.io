@@ -1,7 +1,10 @@
 module Material.Layout exposing (Config, Contents, Mode(..), Model, Property, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, render, rippleTabs, scrolling, seamed, selectedTab, transparentHeader, waterfall)
 
 import Element exposing (..)
+import Element.Background as Background
 import Element.Events as Events
+import Element.Font as Font
+import Material.Icon as Icon
 import Material.Options as Options
 import Material.Options.Internal as Internal
 
@@ -105,7 +108,7 @@ scrolling =
 selectedTab : Int -> Property msg
 selectedTab =
     Internal.option
-        << (\k config -> { config | selectedTab = k })
+        << (\tabIndex config -> { config | selectedTab = tabIndex })
 
 
 moreTabs : Property msg
@@ -122,14 +125,55 @@ onSelectTab =
 -- VIEW
 
 
-type alias Contents m =
-    { header : List (Element m)
-    , drawer : List (Element m)
-    , tabs : List (Element m)
-    , main : List (Element m)
+type alias Contents msg =
+    { header : List (Element msg)
+    , drawer : List (Element msg)
+    , tabs : List (Element msg)
+    , main : List (Element msg)
     }
 
 
 render : { model | layout : Model } -> List (Property msg) -> Contents msg -> Element msg
-render model properties contents =
-    el [] (text "Layout")
+render model properties { header, drawer, tabs, main } =
+    let
+        summary =
+            Internal.collect defaultConfig properties
+
+        config =
+            summary.config
+
+        hasDrawer =
+            drawer /= []
+
+        headerDrawerButton =
+            if hasDrawer then
+                Just drawerButton
+
+            else
+                Nothing
+    in
+    el
+        [ width fill
+        , height fill
+        , inFront (headerView config model.layout ( headerDrawerButton, [] ))
+        ]
+        (text "Layout")
+
+
+headerView :
+    Config msg
+    -> Model
+    -> ( Maybe (Element msg), List (Element msg) )
+    -> Element msg
+headerView config model ( headerDrawerButton, actionButtons ) =
+    row
+        [ width fill
+        , Background.color (rgb 0 0 0)
+        , Font.color (rgb 255 255 255)
+        ]
+        [ drawerButton ]
+
+
+drawerButton : Element msg
+drawerButton =
+    el [] (Icon.i "menu")
