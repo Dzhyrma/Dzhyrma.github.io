@@ -5,6 +5,7 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (..)
 import Html exposing (Html)
+import Material.Icon as Icon
 import Material.Layout as Layout
 import Task exposing (..)
 import Url exposing (Url)
@@ -126,7 +127,7 @@ body model =
     Element.layout []
         (case device.class of
             BigDesktop ->
-                Layout.render model
+                Layout.view model.layout
                     [ Layout.fixedDrawer
                     ]
                     { header = header model
@@ -136,16 +137,39 @@ body model =
                     }
 
             Desktop ->
-                text "Desktop"
+                Layout.view model.layout
+                    [ Layout.fixedDrawer
+                    ]
+                    { header = header model
+                    , drawer = []
+                    , tabs = []
+                    , main = []
+                    }
 
             Tablet ->
-                text "Tablet"
+                Layout.view model.layout
+                    [ Layout.fixedDrawer
+                    , Layout.smallScreen
+                    ]
+                    { header = header model
+                    , drawer = []
+                    , tabs = []
+                    , main = []
+                    }
 
             Phone ->
-                text "Phone"
+                Layout.view model.layout
+                    [ Layout.fixedDrawer
+                    , Layout.smallScreen
+                    ]
+                    { header = header model
+                    , drawer = []
+                    , tabs = []
+                    , main = []
+                    }
         )
 
 
-header : Model -> List (Element msg)
+header : Model -> Layout.Header msg
 header model =
-    []
+    Layout.Header (text "Main page") [ text "About me", Icon.i "search", Icon.i "more_vert" ]
