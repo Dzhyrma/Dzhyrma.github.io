@@ -5,6 +5,7 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Element exposing (..)
 import Html exposing (Html)
+import Material.Helpers exposing (lift)
 import Material.Icon as Icon
 import Material.Layout as Layout
 import Task exposing (..)
@@ -43,7 +44,7 @@ type alias WindowSize =
 
 type alias Model =
     { key : Nav.Key
-    , url : Url.Url
+    , url : Url
     , windowSize : WindowSize
     , layout : Layout.Model
     }
@@ -69,6 +70,7 @@ type Msg
     | UrlChanged Url.Url
     | ChangeUrl String
     | WindowSizeChanged Int Int
+    | LayoutMsg Layout.Msg
 
 
 
@@ -95,6 +97,9 @@ update msg model =
         WindowSizeChanged newWidth newHeight ->
             ( { model | windowSize = WindowSize newWidth newHeight }, Cmd.none )
 
+        LayoutMsg a ->
+            lift .layout (\m x -> { m | layout = x }) LayoutMsg Layout.update a model
+
 
 
 -- SUBSCRIPTIONS
@@ -118,7 +123,7 @@ view model =
     }
 
 
-body : Model -> Html msg
+body : Model -> Html Msg
 body model =
     let
         device =
@@ -127,43 +132,46 @@ body model =
     Element.layout []
         (case device.class of
             BigDesktop ->
-                Layout.view model.layout
+                Layout.view LayoutMsg
+                    model.layout
                     [ Layout.fixedDrawer
+                    , Layout.clippedDrawer
                     ]
                     { header = header model
-                    , drawer = []
+                    , drawer = [ text "Drawer element" ]
                     , tabs = []
                     , main = []
                     }
 
             Desktop ->
-                Layout.view model.layout
+                Layout.view LayoutMsg
+                    model.layout
                     [ Layout.fixedDrawer
                     ]
                     { header = header model
-                    , drawer = []
+                    , drawer = [ text "Drawer element" ]
                     , tabs = []
                     , main = []
                     }
 
             Tablet ->
-                Layout.view model.layout
-                    [ Layout.fixedDrawer
-                    , Layout.smallScreen
+                Layout.view LayoutMsg
+                    model.layout
+                    [ Layout.smallScreen
                     ]
                     { header = header model
-                    , drawer = []
+                    , drawer = [ text "Drawer element" ]
                     , tabs = []
                     , main = []
                     }
 
             Phone ->
-                Layout.view model.layout
-                    [ Layout.fixedDrawer
-                    , Layout.smallScreen
+                Layout.view LayoutMsg
+                    model.layout
+                    [ Layout.smallScreen
                     ]
                     { header = header model
-                    , drawer = []
+                    , drawer = [ text "Drawer element" ]
                     , tabs = []
                     , main = []
                     }

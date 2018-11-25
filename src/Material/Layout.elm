@@ -1,7 +1,8 @@
-module Material.Layout exposing (Config, Contents, Header, Mode(..), Model, Property, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, rippleTabs, scrolling, seamed, selectedTab, smallScreen, transparentHeader, view, waterfall)
+module Material.Layout exposing (Config, Contents, Header, Mode(..), Model, Msg, Property, clippedDrawer, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, rippleTabs, scrolling, seamed, selectedTab, smallScreen, transparentHeader, update, view, waterfall)
 
 import Element exposing (..)
 import Element.Background as Background
+import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Html.Attributes
@@ -15,12 +16,14 @@ import Material.Options.Internal as Internal
 
 
 type alias Model =
-    {}
+    { isDrawerOpen : Bool
+    }
 
 
 defaultModel : Model
 defaultModel =
-    {}
+    { isDrawerOpen = False
+    }
 
 
 
@@ -137,6 +140,31 @@ onSelectTab =
 
 
 
+-- MESSAGES
+
+
+type Msg
+    = ToggleDrawer
+    | Noop
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    update_ identity msg model
+        |> Maybe.withDefault ( model, Cmd.none )
+
+
+update_ : (Msg -> msg) -> Msg -> Model -> Maybe ( Model, Cmd msg )
+update_ lift action model =
+    case action of
+        Noop ->
+            Nothing
+
+        ToggleDrawer ->
+            Just <| ( { model | isDrawerOpen = not model.isDrawerOpen }, Cmd.none )
+
+
+
 -- VIEW
 
 
@@ -154,8 +182,8 @@ type alias Contents msg =
     }
 
 
-view : Model -> List (Property msg) -> Contents msg -> Element msg
-view model properties { header, drawer, tabs, main } =
+view : (Msg -> msg) -> Model -> List (Property msg) -> Contents msg -> Element msg
+view lift model properties { header, drawer, tabs, main } =
     let
         summary =
             Internal.collect defaultConfig properties
@@ -172,49 +200,153 @@ view model properties { header, drawer, tabs, main } =
         drawerIsClipped =
             config.clippedDrawer
 
+        drawerIsVisible =
+            model.isDrawerOpen && not drawerIsFixed
+
         headerDrawerButton =
-            if hasDrawer then
-                Just drawerButton
+            if hasDrawer && not drawerIsFixed then
+                Just (drawerButton lift)
 
             else
                 Nothing
+
+        headerElement =
+            headerView config model ( headerDrawerButton, header )
+
+        drawerElement =
+            drawerView config
+                model
+                (if not drawerIsFixed then
+                    [ htmlAttribute <| Html.Attributes.style "box-shadow" "0 8px 10px -5px rgba(0,0,0,.2), 0 16px 24px 2px rgba(0,0,0,.14), 0 6px 30px 5px rgba(0,0,0,.12)"
+                    , htmlAttribute <|
+                        Html.Attributes.style "transform"
+                            (if drawerIsVisible then
+                                "none"
+
+                             else
+                                "translateX(calc(-100% - 20px))"
+                            )
+                    , htmlAttribute <| Html.Attributes.style "will-change" "transform"
+                    , htmlAttribute <| Html.Attributes.style "transition" "all .25s"
+                    ]
+
+                 else
+                    []
+                )
+                drawer
+
+        scrimElement =
+            if drawerIsFixed then
+                Nothing
+
+            else
+                Just
+                    (scrim lift
+                        ((htmlAttribute <| Html.Attributes.style "will-change" "opacity")
+                            :: (htmlAttribute <| Html.Attributes.style "transition" "all .25s")
+                            :: (if drawerIsVisible then
+                                    []
+
+                                else
+                                    [ htmlAttribute <| Html.Attributes.style "pointer-events" "none"
+                                    , htmlAttribute <| Html.Attributes.style "opacity" "0"
+                                    ]
+                               )
+                        )
+                    )
     in
-    el
-        [ width fill
-        , height fill
-        , inFront (headerView config model ( headerDrawerButton, header ))
-        , inFront (drawerView config model drawer)
-        ]
-        (text "Layout")
+    if drawerIsFixed then
+        if drawerIsClipped then
+            el
+                [ width fill
+                , height fill
+                , inFront headerElement
+                ]
+                (row
+                    [ height fill
+                    , paddingEach { top = 56, bottom = 0, left = 0, right = 0 }
+                    ]
+                    [ drawerElement ]
+                )
+
+        else
+            row
+                [ width fill
+                , height fill
+                ]
+                [ drawerElement
+                , el [ width fill, height fill, inFront headerElement ] (text "Layout")
+                ]
+
+    else
+        el
+            [ width fill
+            , height fill
+            , inFront headerElement
+            , inFront (Maybe.withDefault none scrimElement)
+            , inFront drawerElement
+            ]
+            (text "Layout")
 
 
 headerView : Config msg -> Model -> ( Maybe (Element msg), Header msg ) -> Element msg
 headerView config model ( headerDrawerButton, header ) =
+    let
+        leftPadding =
+            case headerDrawerButton of
+                Just _ ->
+                    0
+
+                Nothing ->
+                    8
+    in
     row
         [ width fill
         , height (px 56)
         , Background.color (rgb 0 0 0)
         , Font.color (rgb 255 255 255)
-        , padding 16
+        , paddingEach { top = 16, bottom = 16, left = leftPadding, right = 16 }
         , htmlAttribute <| Html.Attributes.style "box-shadow" "0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12)"
         ]
-        [ drawerButton
-        , el [ paddingXY 32 0 ] header.title
+        [ Maybe.withDefault none headerDrawerButton
+        , el [ paddingXY 16 0 ] header.title
         , row [ alignRight, spacing 24 ] (List.map (el []) header.actionButtons)
         ]
 
 
-drawerButton : Element msg
-drawerButton =
-    el [] (Icon.i "menu")
-
-
-drawerView : Config msg -> Model -> List (Element msg) -> Element msg
-drawerView config model elements =
-    column
-        [ width (px 256)
-        , height fill
-        , Background.color (rgb 255 255 255)
-        , padding 16
+drawerButton : (Msg -> msg) -> Element msg
+drawerButton lift =
+    el
+        [ padding 16
+        , pointer
+        , Events.onClick (lift ToggleDrawer)
         ]
+        (Icon.i "menu")
+
+
+scrim : (Msg -> msg) -> List (Attribute msg) -> Element msg
+scrim lift attributes =
+    el
+        ([ width fill
+         , height fill
+         , Background.color (rgba 0 0 0 0.32)
+         , Events.onClick (lift ToggleDrawer)
+         ]
+            ++ attributes
+        )
+        none
+
+
+drawerView : Config msg -> Model -> List (Attribute msg) -> List (Element msg) -> Element msg
+drawerView config model attributes elements =
+    column
+        ([ width (px 256)
+         , height fill
+         , Background.color (rgb 255 255 255)
+         , Border.widthEach { bottom = 0, top = 0, left = 0, right = 1 }
+         , Border.color (rgba 0 0 0 0.12)
+         , padding 16
+         ]
+            ++ attributes
+        )
         [ text "drawer" ]

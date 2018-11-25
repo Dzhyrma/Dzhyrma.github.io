@@ -4337,8 +4337,8 @@ var author$project$Main$LinkClicked = function (a) {
 var author$project$Main$UrlChanged = function (a) {
 	return {$: 'UrlChanged', a: a};
 };
-var author$project$Material$Layout$defaultModel = {};
 var elm$core$Basics$False = {$: 'False'};
+var author$project$Material$Layout$defaultModel = {isDrawerOpen: false};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -5557,9 +5557,55 @@ var elm$browser$Browser$Events$onResize = function (func) {
 var author$project$Main$subscriptions = function (model) {
 	return elm$browser$Browser$Events$onResize(author$project$Main$WindowSizeChanged);
 };
+var author$project$Main$LayoutMsg = function (a) {
+	return {$: 'LayoutMsg', a: a};
+};
 var author$project$Main$WindowSize = F2(
 	function (width, height) {
 		return {height: height, width: width};
+	});
+var elm$core$Platform$Cmd$map = _Platform_map;
+var author$project$Material$Helpers$lift = F6(
+	function (get, set, fwd, update, action, model) {
+		var _n0 = A2(
+			update,
+			action,
+			get(model));
+		var innerModel = _n0.a;
+		var e = _n0.b;
+		return _Utils_Tuple2(
+			A2(set, model, innerModel),
+			A2(elm$core$Platform$Cmd$map, fwd, e));
+	});
+var elm$core$Basics$not = _Basics_not;
+var author$project$Material$Layout$update_ = F3(
+	function (lift, action, model) {
+		if (action.$ === 'Noop') {
+			return elm$core$Maybe$Nothing;
+		} else {
+			return elm$core$Maybe$Just(
+				_Utils_Tuple2(
+					_Utils_update(
+						model,
+						{isDrawerOpen: !model.isDrawerOpen}),
+					elm$core$Platform$Cmd$none));
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var author$project$Material$Layout$update = F2(
+	function (msg, model) {
+		return A2(
+			elm$core$Maybe$withDefault,
+			_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
+			A3(author$project$Material$Layout$update_, elm$core$Basics$identity, msg, model));
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
@@ -5638,7 +5684,7 @@ var author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					A2(elm$browser$Browser$Navigation$pushUrl, model.key, urlPath));
-			default:
+			case 'WindowSizeChanged':
 				var newWidth = msg.a;
 				var newHeight = msg.b;
 				return _Utils_Tuple2(
@@ -5648,26 +5694,25 @@ var author$project$Main$update = F2(
 							windowSize: A2(author$project$Main$WindowSize, newWidth, newHeight)
 						}),
 					elm$core$Platform$Cmd$none);
+			default:
+				var a = msg.a;
+				return A6(
+					author$project$Material$Helpers$lift,
+					function ($) {
+						return $.layout;
+					},
+					F2(
+						function (m, x) {
+							return _Utils_update(
+								m,
+								{layout: x});
+						}),
+					author$project$Main$LayoutMsg,
+					author$project$Material$Layout$update,
+					a,
+					model);
 		}
 	});
-var author$project$Main$header = function (model) {
-	return _List_Nil;
-};
-var author$project$Material$Options$Internal$Set = function (a) {
-	return {$: 'Set', a: a};
-};
-var author$project$Material$Options$Internal$option = author$project$Material$Options$Internal$Set;
-var author$project$Material$Layout$fixedDrawer = author$project$Material$Options$Internal$option(
-	function (config) {
-		return _Utils_update(
-			config,
-			{fixedDrawer: true});
-	});
-var author$project$Material$Layout$Standard = {$: 'Standard'};
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var author$project$Material$Layout$defaultConfig = {fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, transparentHeader: false};
 var author$project$Material$Options$Internal$Summary = F5(
 	function (classes, css, attrs, internal, config) {
 		return {attrs: attrs, classes: classes, config: config, css: css, internal: internal};
@@ -5778,6 +5823,55 @@ var author$project$Material$Icon$view = F2(
 var author$project$Material$Icon$i = function (name) {
 	return A2(author$project$Material$Icon$view, name, _List_Nil);
 };
+var author$project$Material$Layout$Header = F2(
+	function (title, actionButtons) {
+		return {actionButtons: actionButtons, title: title};
+	});
+var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
+	return {$: 'Text', a: a};
+};
+var mdgriffith$elm_ui$Element$text = function (content) {
+	return mdgriffith$elm_ui$Internal$Model$Text(content);
+};
+var author$project$Main$header = function (model) {
+	return A2(
+		author$project$Material$Layout$Header,
+		mdgriffith$elm_ui$Element$text('Main page'),
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$text('About me'),
+				author$project$Material$Icon$i('search'),
+				author$project$Material$Icon$i('more_vert')
+			]));
+};
+var author$project$Material$Options$Internal$Set = function (a) {
+	return {$: 'Set', a: a};
+};
+var author$project$Material$Options$Internal$option = author$project$Material$Options$Internal$Set;
+var author$project$Material$Layout$clippedDrawer = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{clippedDrawer: true});
+	});
+var author$project$Material$Layout$fixedDrawer = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{fixedDrawer: true});
+	});
+var author$project$Material$Layout$smallScreen = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{smallScreen: true});
+	});
+var author$project$Material$Layout$Standard = {$: 'Standard'};
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var author$project$Material$Layout$defaultConfig = {clippedDrawer: false, fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, smallScreen: false, transparentHeader: false};
+var author$project$Material$Layout$ToggleDrawer = {$: 'ToggleDrawer'};
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
 };
@@ -5904,7 +5998,6 @@ var mdgriffith$elm_ui$Internal$Model$addKeyedChildren = F3(
 	});
 var mdgriffith$elm_ui$Internal$Model$AsParagraph = {$: 'AsParagraph'};
 var mdgriffith$elm_ui$Internal$Model$asParagraph = mdgriffith$elm_ui$Internal$Model$AsParagraph;
-var elm$core$Basics$not = _Basics_not;
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$p = _VirtualDom_node('p');
 var elm$html$Html$s = _VirtualDom_node('s');
@@ -6006,15 +6099,6 @@ var elm$core$Set$member = F2(
 	function (key, _n0) {
 		var dict = _n0.a;
 		return A2(elm$core$Dict$member, key, dict);
-	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
 	});
 var mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
@@ -10980,14 +11064,98 @@ var mdgriffith$elm_ui$Element$el = F2(
 				_List_fromArray(
 					[child])));
 	});
-var author$project$Material$Layout$drawerButton = A2(
-	mdgriffith$elm_ui$Element$el,
-	_List_Nil,
-	author$project$Material$Icon$i('menu'));
+var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
+var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
+	function (a, b, c, d, e) {
+		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
+	function (a, b) {
+		return {$: 'StyleClass', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$padding = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(x),
+			x,
+			x,
+			x,
+			x));
+};
+var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
+var mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
+var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
+var author$project$Material$Layout$drawerButton = function (lift) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$padding(16),
+				mdgriffith$elm_ui$Element$pointer,
+				mdgriffith$elm_ui$Element$Events$onClick(
+				lift(author$project$Material$Layout$ToggleDrawer))
+			]),
+		author$project$Material$Icon$i('menu'));
+};
+var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
+var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
+var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		elm$html$Html$Attributes$class(cls));
+};
+var mdgriffith$elm_ui$Element$column = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asColumn,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
 var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
+var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var mdgriffith$elm_ui$Element$px = mdgriffith$elm_ui$Internal$Model$Px;
 var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
 		return {$: 'Rgba', a: a, b: b, c: c, d: d};
@@ -10996,41 +11164,11 @@ var mdgriffith$elm_ui$Element$rgb = F3(
 	function (r, g, b) {
 		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
 	});
-var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
-var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
-var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
-};
-var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
-	return mdgriffith$elm_ui$Internal$Model$Attr(
-		elm$html$Html$Attributes$class(cls));
-};
-var mdgriffith$elm_ui$Element$row = F2(
-	function (attrs, children) {
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asRow,
-			mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
+var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
 var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
 var mdgriffith$elm_ui$Internal$Model$Colored = F3(
 	function (a, b, c) {
 		return {$: 'Colored', a: a, b: b, c: c};
-	});
-var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
-	function (a, b) {
-		return {$: 'StyleClass', a: a, b: b};
 	});
 var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
 	var red = _n0.a;
@@ -11049,6 +11187,184 @@ var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
+var mdgriffith$elm_ui$Internal$Flag$borderColor = mdgriffith$elm_ui$Internal$Flag$flag(28);
+var mdgriffith$elm_ui$Element$Border$color = function (clr) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'bc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'border-color',
+			clr));
+};
+var mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
+	function (a, b, c, d, e) {
+		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
+	});
+var mdgriffith$elm_ui$Element$Border$width = function (v) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderWidth,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$BorderWidth,
+			'b-' + elm$core$String$fromInt(v),
+			v,
+			v,
+			v,
+			v));
+};
+var mdgriffith$elm_ui$Element$Border$widthXY = F2(
+	function (x, y) {
+		return A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$borderWidth,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$BorderWidth,
+				'b-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
+				y,
+				x,
+				y,
+				x));
+	});
+var mdgriffith$elm_ui$Element$Border$widthEach = function (_n0) {
+	var bottom = _n0.bottom;
+	var top = _n0.top;
+	var left = _n0.left;
+	var right = _n0.right;
+	return (_Utils_eq(top, bottom) && _Utils_eq(left, right)) ? (_Utils_eq(top, right) ? mdgriffith$elm_ui$Element$Border$width(top) : A2(mdgriffith$elm_ui$Element$Border$widthXY, left, top)) : A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$borderWidth,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$BorderWidth,
+			'b-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left))))))),
+			top,
+			right,
+			bottom,
+			left));
+};
+var author$project$Material$Layout$drawerView = F4(
+	function (config, model, attributes, elements) {
+		return A2(
+			mdgriffith$elm_ui$Element$column,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(
+						mdgriffith$elm_ui$Element$px(256)),
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$Background$color(
+						A3(mdgriffith$elm_ui$Element$rgb, 255, 255, 255)),
+						mdgriffith$elm_ui$Element$Border$widthEach(
+						{bottom: 0, left: 0, right: 1, top: 0}),
+						mdgriffith$elm_ui$Element$Border$color(
+						A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.12)),
+						mdgriffith$elm_ui$Element$padding(16)
+					]),
+				attributes),
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$text('drawer')
+				]));
+	});
+var mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
+	return {$: 'AlignX', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
+var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
+var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
+var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
+var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
+	function (top, right, bottom, left) {
+		return 'pad-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left)))))));
+	});
+var mdgriffith$elm_ui$Element$paddingEach = function (_n0) {
+	var top = _n0.top;
+	var right = _n0.right;
+	var bottom = _n0.bottom;
+	var left = _n0.left;
+	return (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) ? A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(top),
+			top,
+			top,
+			top,
+			top)) : A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			A4(mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
+			top,
+			right,
+			bottom,
+			left));
+};
+var mdgriffith$elm_ui$Element$paddingXY = F2(
+	function (x, y) {
+		return _Utils_eq(x, y) ? A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + elm$core$String$fromInt(x),
+				x,
+				x,
+				x,
+				x)) : A2(
+			mdgriffith$elm_ui$Internal$Model$StyleClass,
+			mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y))),
+				y,
+				x,
+				y,
+				x));
+	});
+var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
+var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
+var mdgriffith$elm_ui$Element$row = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asRow,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Internal$Flag$spacing = mdgriffith$elm_ui$Internal$Flag$flag(3);
+var mdgriffith$elm_ui$Internal$Model$SpacingStyle = F3(
+	function (a, b, c) {
+		return {$: 'SpacingStyle', a: a, b: b, c: c};
+	});
+var mdgriffith$elm_ui$Internal$Model$spacingName = F2(
+	function (x, y) {
+		return 'spacing-' + (elm$core$String$fromInt(x) + ('-' + elm$core$String$fromInt(y)));
+	});
+var mdgriffith$elm_ui$Element$spacing = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$spacing,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$SpacingStyle,
+			A2(mdgriffith$elm_ui$Internal$Model$spacingName, x, x),
+			x,
+			x));
+};
 var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
 var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
 	return A2(
@@ -11063,19 +11379,69 @@ var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
 var author$project$Material$Layout$headerView = F3(
 	function (config, model, _n0) {
 		var headerDrawerButton = _n0.a;
-		var actionButtons = _n0.b;
+		var header = _n0.b;
+		var leftPadding = function () {
+			if (headerDrawerButton.$ === 'Just') {
+				return 0;
+			} else {
+				return 8;
+			}
+		}();
 		return A2(
 			mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
 				[
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(
+					mdgriffith$elm_ui$Element$px(56)),
 					mdgriffith$elm_ui$Element$Background$color(
 					A3(mdgriffith$elm_ui$Element$rgb, 0, 0, 0)),
 					mdgriffith$elm_ui$Element$Font$color(
-					A3(mdgriffith$elm_ui$Element$rgb, 255, 255, 255))
+					A3(mdgriffith$elm_ui$Element$rgb, 255, 255, 255)),
+					mdgriffith$elm_ui$Element$paddingEach(
+					{bottom: 16, left: leftPadding, right: 16, top: 16}),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					A2(elm$html$Html$Attributes$style, 'box-shadow', '0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12)'))
 				]),
 			_List_fromArray(
-				[author$project$Material$Layout$drawerButton]));
+				[
+					A2(elm$core$Maybe$withDefault, mdgriffith$elm_ui$Element$none, headerDrawerButton),
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							A2(mdgriffith$elm_ui$Element$paddingXY, 16, 0)
+						]),
+					header.title),
+					A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$alignRight,
+							mdgriffith$elm_ui$Element$spacing(24)
+						]),
+					A2(
+						elm$core$List$map,
+						mdgriffith$elm_ui$Element$el(_List_Nil),
+						header.actionButtons))
+				]));
+	});
+var author$project$Material$Layout$scrim = F2(
+	function (lift, attributes) {
+		return A2(
+			mdgriffith$elm_ui$Element$el,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$Background$color(
+						A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.32)),
+						mdgriffith$elm_ui$Element$Events$onClick(
+						lift(author$project$Material$Layout$ToggleDrawer))
+					]),
+				attributes),
+			mdgriffith$elm_ui$Element$none);
 	});
 var author$project$Material$Options$Internal$collect1 = F2(
 	function (property, summary) {
@@ -11130,34 +11496,109 @@ var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
 var mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
 };
-var mdgriffith$elm_ui$Internal$Model$Text = function (a) {
-	return {$: 'Text', a: a};
-};
-var mdgriffith$elm_ui$Element$text = function (content) {
-	return mdgriffith$elm_ui$Internal$Model$Text(content);
-};
-var author$project$Material$Layout$render = F3(
-	function (model, properties, _n0) {
+var author$project$Material$Layout$view = F4(
+	function (lift, model, properties, _n0) {
 		var header = _n0.header;
 		var drawer = _n0.drawer;
 		var tabs = _n0.tabs;
 		var main = _n0.main;
 		var summary = A2(author$project$Material$Options$Internal$collect, author$project$Material$Layout$defaultConfig, properties);
 		var hasDrawer = !_Utils_eq(drawer, _List_Nil);
-		var headerDrawerButton = hasDrawer ? elm$core$Maybe$Just(author$project$Material$Layout$drawerButton) : elm$core$Maybe$Nothing;
 		var config = summary.config;
-		return A2(
+		var drawerIsClipped = config.clippedDrawer;
+		var drawerIsFixed = config.fixedDrawer && (!config.smallScreen);
+		var drawerIsVisible = model.isDrawerOpen && (!drawerIsFixed);
+		var drawerElement = A4(
+			author$project$Material$Layout$drawerView,
+			config,
+			model,
+			(!drawerIsFixed) ? _List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					A2(elm$html$Html$Attributes$style, 'box-shadow', '0 8px 10px -5px rgba(0,0,0,.2), 0 16px 24px 2px rgba(0,0,0,.14), 0 6px 30px 5px rgba(0,0,0,.12)')),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					A2(
+						elm$html$Html$Attributes$style,
+						'transform',
+						drawerIsVisible ? 'none' : 'translateX(calc(-100% - 20px))')),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					A2(elm$html$Html$Attributes$style, 'will-change', 'transform')),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					A2(elm$html$Html$Attributes$style, 'transition', 'all .25s'))
+				]) : _List_Nil,
+			drawer);
+		var headerDrawerButton = (hasDrawer && (!drawerIsFixed)) ? elm$core$Maybe$Just(
+			author$project$Material$Layout$drawerButton(lift)) : elm$core$Maybe$Nothing;
+		var scrimElement = drawerIsFixed ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(
+			A2(
+				author$project$Material$Layout$scrim,
+				lift,
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$htmlAttribute(
+						A2(elm$html$Html$Attributes$style, 'will-change', 'opacity')),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$htmlAttribute(
+							A2(elm$html$Html$Attributes$style, 'transition', 'all .25s')),
+						drawerIsVisible ? _List_Nil : _List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$htmlAttribute(
+								A2(elm$html$Html$Attributes$style, 'pointer-events', 'none')),
+								mdgriffith$elm_ui$Element$htmlAttribute(
+								A2(elm$html$Html$Attributes$style, 'opacity', '0'))
+							])))));
+		var headerElement = A3(
+			author$project$Material$Layout$headerView,
+			config,
+			model,
+			_Utils_Tuple2(headerDrawerButton, header));
+		return drawerIsFixed ? (drawerIsClipped ? A2(
 			mdgriffith$elm_ui$Element$el,
 			_List_fromArray(
 				[
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
 					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$inFront(headerElement)
+				]),
+			A2(
+				mdgriffith$elm_ui$Element$row,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$paddingEach(
+						{bottom: 0, left: 0, right: 0, top: 56})
+					]),
+				_List_fromArray(
+					[drawerElement]))) : A2(
+			mdgriffith$elm_ui$Element$row,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill)
+				]),
+			_List_fromArray(
+				[
+					drawerElement,
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$inFront(headerElement)
+						]),
+					mdgriffith$elm_ui$Element$text('Layout'))
+				]))) : A2(
+			mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$inFront(headerElement),
 					mdgriffith$elm_ui$Element$inFront(
-					A3(
-						author$project$Material$Layout$headerView,
-						config,
-						model.layout,
-						_Utils_Tuple2(headerDrawerButton, _List_Nil)))
+					A2(elm$core$Maybe$withDefault, mdgriffith$elm_ui$Element$none, scrimElement)),
+					mdgriffith$elm_ui$Element$inFront(drawerElement)
 				]),
 			mdgriffith$elm_ui$Element$text('Layout'));
 	});
@@ -11438,23 +11879,69 @@ var author$project$Main$body = function (model) {
 			var _n0 = device._class;
 			switch (_n0.$) {
 				case 'BigDesktop':
-					return A3(
-						author$project$Material$Layout$render,
-						model,
+					return A4(
+						author$project$Material$Layout$view,
+						author$project$Main$LayoutMsg,
+						model.layout,
 						_List_fromArray(
-							[author$project$Material$Layout$fixedDrawer]),
+							[author$project$Material$Layout$fixedDrawer, author$project$Material$Layout$clippedDrawer]),
 						{
-							drawer: _List_Nil,
+							drawer: _List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('Drawer element')
+								]),
 							header: author$project$Main$header(model),
 							main: _List_Nil,
 							tabs: _List_Nil
 						});
 				case 'Desktop':
-					return mdgriffith$elm_ui$Element$text('Desktop');
+					return A4(
+						author$project$Material$Layout$view,
+						author$project$Main$LayoutMsg,
+						model.layout,
+						_List_fromArray(
+							[author$project$Material$Layout$fixedDrawer]),
+						{
+							drawer: _List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('Drawer element')
+								]),
+							header: author$project$Main$header(model),
+							main: _List_Nil,
+							tabs: _List_Nil
+						});
 				case 'Tablet':
-					return mdgriffith$elm_ui$Element$text('Tablet');
+					return A4(
+						author$project$Material$Layout$view,
+						author$project$Main$LayoutMsg,
+						model.layout,
+						_List_fromArray(
+							[author$project$Material$Layout$smallScreen]),
+						{
+							drawer: _List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('Drawer element')
+								]),
+							header: author$project$Main$header(model),
+							main: _List_Nil,
+							tabs: _List_Nil
+						});
 				default:
-					return mdgriffith$elm_ui$Element$text('Phone');
+					return A4(
+						author$project$Material$Layout$view,
+						author$project$Main$LayoutMsg,
+						model.layout,
+						_List_fromArray(
+							[author$project$Material$Layout$smallScreen]),
+						{
+							drawer: _List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$text('Drawer element')
+								]),
+							header: author$project$Main$header(model),
+							main: _List_Nil,
+							tabs: _List_Nil
+						});
 			}
 		}());
 };
