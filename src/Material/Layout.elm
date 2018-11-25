@@ -5,9 +5,10 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import Html
 import Html.Attributes
 import Material.Icon as Icon
-import Material.Options as Options
+import Material.Options as Options exposing (css)
 import Material.Options.Internal as Internal
 
 
@@ -319,9 +320,10 @@ drawerButton lift =
     el
         [ padding 16
         , pointer
+        , htmlAttribute <| Html.Attributes.type_ "button"
         , Events.onClick (lift ToggleDrawer)
         ]
-        (Icon.i "menu")
+        (Icon.button24 "menu" [] [])
 
 
 scrim : (Msg -> msg) -> List (Attribute msg) -> Element msg

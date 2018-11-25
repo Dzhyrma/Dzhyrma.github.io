@@ -1,4 +1,4 @@
-module Material.Icon exposing (Config, Property, defaultConfig, i, size18, size24, size36, size48, view)
+module Material.Icon exposing (Config, Property, button24, defaultConfig, i, size18, size24, size36, size48, view)
 
 import Element exposing (..)
 import Html
@@ -48,17 +48,30 @@ size48 =
 -- VIEW
 
 
+button24 : String -> List (Property msg) -> List (Property msg) -> Element msg
+button24 name buttonOptions iconOptions =
+    let
+        allButtonOptions =
+            css "background" "none"
+                :: css "border" "0"
+                :: css "outline" "none"
+                :: css "cursor" "pointer"
+                :: css "padding" "0"
+                :: css "font-family" "inherit"
+                :: css "color" "inherit"
+                :: css "font" "inherit"
+                :: css "height" "24px"
+                :: css "width" "24px"
+                :: buttonOptions
+    in
+    (styled Html.button allButtonOptions <| [ styled Html.i (cs "material-icons" :: iconOptions) <| [ Html.text name ] ]) |> html
+
+
 view : String -> List (Property msg) -> Element msg
 view name options =
     let
         iOptions =
             cs "material-icons"
-                :: css "user-select" "none"
-                :: css "-moz-user-select" "none"
-                :: css "-khtml-user-select" "none"
-                :: css "-webkit-user-select" "none"
-                :: css "-o-user-select" "none"
-                :: css "pointer-events" "none"
                 :: options
     in
     (styled Html.i iOptions <| [ Html.text name ]) |> html

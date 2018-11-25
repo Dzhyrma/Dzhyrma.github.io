@@ -5788,14 +5788,6 @@ var author$project$Material$Options$Internal$Class = function (a) {
 var author$project$Material$Options$cs = function (name) {
 	return author$project$Material$Options$Internal$Class(name);
 };
-var author$project$Material$Options$Internal$CSS = function (a) {
-	return {$: 'CSS', a: a};
-};
-var author$project$Material$Options$css = F2(
-	function (key, value) {
-		return author$project$Material$Options$Internal$CSS(
-			_Utils_Tuple2(key, value));
-	});
 var elm$html$Html$i = _VirtualDom_node('i');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
@@ -5818,25 +5810,7 @@ var author$project$Material$Icon$view = F2(
 		var iOptions = A2(
 			elm$core$List$cons,
 			author$project$Material$Options$cs('material-icons'),
-			A2(
-				elm$core$List$cons,
-				A2(author$project$Material$Options$css, 'user-select', 'none'),
-				A2(
-					elm$core$List$cons,
-					A2(author$project$Material$Options$css, '-moz-user-select', 'none'),
-					A2(
-						elm$core$List$cons,
-						A2(author$project$Material$Options$css, '-khtml-user-select', 'none'),
-						A2(
-							elm$core$List$cons,
-							A2(author$project$Material$Options$css, '-webkit-user-select', 'none'),
-							A2(
-								elm$core$List$cons,
-								A2(author$project$Material$Options$css, '-o-user-select', 'none'),
-								A2(
-									elm$core$List$cons,
-									A2(author$project$Material$Options$css, 'pointer-events', 'none'),
-									options)))))));
+			options);
 		return mdgriffith$elm_ui$Element$html(
 			A3(
 				author$project$Material$Icon$styled,
@@ -5898,7 +5872,70 @@ var elm$core$Basics$negate = function (n) {
 	return -n;
 };
 var author$project$Material$Layout$defaultConfig = {clippedDrawer: false, fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, smallScreen: false, transparentHeader: false};
+var author$project$Material$Options$Internal$CSS = function (a) {
+	return {$: 'CSS', a: a};
+};
+var author$project$Material$Options$css = F2(
+	function (key, value) {
+		return author$project$Material$Options$Internal$CSS(
+			_Utils_Tuple2(key, value));
+	});
+var elm$html$Html$button = _VirtualDom_node('button');
+var author$project$Material$Icon$button24 = F3(
+	function (name, buttonOptions, iconOptions) {
+		var allButtonOptions = A2(
+			elm$core$List$cons,
+			A2(author$project$Material$Options$css, 'background', 'none'),
+			A2(
+				elm$core$List$cons,
+				A2(author$project$Material$Options$css, 'border', '0'),
+				A2(
+					elm$core$List$cons,
+					A2(author$project$Material$Options$css, 'outline', 'none'),
+					A2(
+						elm$core$List$cons,
+						A2(author$project$Material$Options$css, 'cursor', 'pointer'),
+						A2(
+							elm$core$List$cons,
+							A2(author$project$Material$Options$css, 'padding', '0'),
+							A2(
+								elm$core$List$cons,
+								A2(author$project$Material$Options$css, 'font-family', 'inherit'),
+								A2(
+									elm$core$List$cons,
+									A2(author$project$Material$Options$css, 'color', 'inherit'),
+									A2(
+										elm$core$List$cons,
+										A2(author$project$Material$Options$css, 'font', 'inherit'),
+										A2(
+											elm$core$List$cons,
+											A2(author$project$Material$Options$css, 'height', '24px'),
+											A2(
+												elm$core$List$cons,
+												A2(author$project$Material$Options$css, 'width', '24px'),
+												buttonOptions))))))))));
+		return mdgriffith$elm_ui$Element$html(
+			A3(
+				author$project$Material$Icon$styled,
+				elm$html$Html$button,
+				allButtonOptions,
+				_List_fromArray(
+					[
+						A3(
+						author$project$Material$Icon$styled,
+						elm$html$Html$i,
+						A2(
+							elm$core$List$cons,
+							author$project$Material$Options$cs('material-icons'),
+							iconOptions),
+						_List_fromArray(
+							[
+								elm$html$Html$text(name)
+							]))
+					])));
+	});
 var author$project$Material$Layout$ToggleDrawer = {$: 'ToggleDrawer'};
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
 };
@@ -11091,6 +11128,10 @@ var mdgriffith$elm_ui$Element$el = F2(
 				_List_fromArray(
 					[child])));
 	});
+var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
+var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
 var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
 var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
 	function (a, b, c, d, e) {
@@ -11135,9 +11176,6 @@ var elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
-};
 var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
 var author$project$Material$Layout$drawerButton = function (lift) {
 	return A2(
@@ -11146,10 +11184,12 @@ var author$project$Material$Layout$drawerButton = function (lift) {
 			[
 				mdgriffith$elm_ui$Element$padding(16),
 				mdgriffith$elm_ui$Element$pointer,
+				mdgriffith$elm_ui$Element$htmlAttribute(
+				elm$html$Html$Attributes$type_('button')),
 				mdgriffith$elm_ui$Element$Events$onClick(
 				lift(author$project$Material$Layout$ToggleDrawer))
 			]),
-		author$project$Material$Icon$i('menu'));
+		A3(author$project$Material$Icon$button24, 'menu', _List_Nil, _List_Nil));
 };
 var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
 var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
@@ -11299,7 +11339,6 @@ var mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 };
 var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
 var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
-var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
 var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
 var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
 var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
