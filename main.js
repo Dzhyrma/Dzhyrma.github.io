@@ -5788,6 +5788,14 @@ var author$project$Material$Options$Internal$Class = function (a) {
 var author$project$Material$Options$cs = function (name) {
 	return author$project$Material$Options$Internal$Class(name);
 };
+var author$project$Material$Options$Internal$CSS = function (a) {
+	return {$: 'CSS', a: a};
+};
+var author$project$Material$Options$css = F2(
+	function (key, value) {
+		return author$project$Material$Options$Internal$CSS(
+			_Utils_Tuple2(key, value));
+	});
 var elm$html$Html$i = _VirtualDom_node('i');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
@@ -5807,14 +5815,30 @@ var mdgriffith$elm_ui$Internal$Model$unstyled = A2(elm$core$Basics$composeL, mdg
 var mdgriffith$elm_ui$Element$html = mdgriffith$elm_ui$Internal$Model$unstyled;
 var author$project$Material$Icon$view = F2(
 	function (name, options) {
+		var iOptions = A2(
+			elm$core$List$cons,
+			author$project$Material$Options$cs('material-icons'),
+			A2(
+				elm$core$List$cons,
+				A2(author$project$Material$Options$css, 'user-select', 'none'),
+				A2(
+					elm$core$List$cons,
+					A2(author$project$Material$Options$css, '-moz-user-select', 'none'),
+					A2(
+						elm$core$List$cons,
+						A2(author$project$Material$Options$css, '-khtml-user-select', 'none'),
+						A2(
+							elm$core$List$cons,
+							A2(author$project$Material$Options$css, '-webkit-user-select', 'none'),
+							A2(
+								elm$core$List$cons,
+								A2(author$project$Material$Options$css, '-o-user-select', 'none'),
+								options))))));
 		return mdgriffith$elm_ui$Element$html(
 			A3(
 				author$project$Material$Icon$styled,
 				elm$html$Html$i,
-				A2(
-					elm$core$List$cons,
-					author$project$Material$Options$cs('material-icons'),
-					options),
+				iOptions,
 				_List_fromArray(
 					[
 						elm$html$Html$text(name)

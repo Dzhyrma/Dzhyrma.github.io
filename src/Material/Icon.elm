@@ -50,7 +50,17 @@ size48 =
 
 view : String -> List (Property msg) -> Element msg
 view name options =
-    (styled Html.i (cs "material-icons" :: options) <| [ Html.text name ]) |> html
+    let
+        iOptions =
+            cs "material-icons"
+                :: css "user-select" "none"
+                :: css "-moz-user-select" "none"
+                :: css "-khtml-user-select" "none"
+                :: css "-webkit-user-select" "none"
+                :: css "-o-user-select" "none"
+                :: options
+    in
+    (styled Html.i iOptions <| [ Html.text name ]) |> html
 
 
 styled : (List (Html.Attribute msg) -> a) -> List (Property msg) -> a
