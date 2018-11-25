@@ -5833,7 +5833,10 @@ var author$project$Material$Icon$view = F2(
 							A2(
 								elm$core$List$cons,
 								A2(author$project$Material$Options$css, '-o-user-select', 'none'),
-								options))))));
+								A2(
+									elm$core$List$cons,
+									A2(author$project$Material$Options$css, 'pointer-events', 'none'),
+									options)))))));
 		return mdgriffith$elm_ui$Element$html(
 			A3(
 				author$project$Material$Icon$styled,

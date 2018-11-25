@@ -58,6 +58,7 @@ view name options =
                 :: css "-khtml-user-select" "none"
                 :: css "-webkit-user-select" "none"
                 :: css "-o-user-select" "none"
+                :: css "pointer-events" "none"
                 :: options
     in
     (styled Html.i iOptions <| [ Html.text name ]) |> html
