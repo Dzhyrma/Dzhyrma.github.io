@@ -5840,7 +5840,7 @@ var author$project$Main$header = function (model) {
 		mdgriffith$elm_ui$Element$text('Main page'),
 		_List_fromArray(
 			[
-				mdgriffith$elm_ui$Element$text('About me'),
+				mdgriffith$elm_ui$Element$text('About'),
 				author$project$Material$Icon$i('search'),
 				author$project$Material$Icon$i('more_vert')
 			]));

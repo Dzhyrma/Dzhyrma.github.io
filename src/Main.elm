@@ -180,4 +180,4 @@ body model =
 
 header : Model -> Layout.Header msg
 header model =
-    Layout.Header (text "Main page") [ text "About me", Icon.i "search", Icon.i "more_vert" ]
+    Layout.Header (text "Main page") [ text "About", Icon.i "search", Icon.i "more_vert" ]
