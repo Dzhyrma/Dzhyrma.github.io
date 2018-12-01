@@ -1,4 +1,4 @@
-module Material.Layout exposing (Config, Contents, Header, Mode(..), Model, Msg, Property, clippedDrawer, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, rippleTabs, scrolling, seamed, selectedTab, smallScreen, transparentHeader, update, view, waterfall)
+module Material.Layout.Layout exposing (Config, Contents, Header, Mode(..), Model, Msg, Property, clippedDrawer, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, rippleTabs, scrolling, seamed, selectedTab, smallScreen, transparentHeader, update, view, waterfall)
 
 import Element exposing (..)
 import Element.Background as Background
@@ -9,6 +9,7 @@ import Html
 import Html.Attributes
 import Html.Events.Extra.Touch as Touch
 import Material.Icon as Icon
+import Material.Layout.Drawer as Drawer
 import Material.Options as Options exposing (css)
 import Material.Options.Internal as Internal
 
@@ -256,8 +257,7 @@ view lift model properties { header, drawer, tabs, main } =
             headerView config model ( headerDrawerButton, header )
 
         drawerElement =
-            drawerView config
-                model
+            Drawer.view
                 (if not drawerIsFixed then
                     [ htmlAttribute <| Html.Attributes.style "box-shadow" "0 8px 10px -5px rgba(0,0,0,.2), 0 16px 24px 2px rgba(0,0,0,.14), 0 6px 30px 5px rgba(0,0,0,.12)"
                     , htmlAttribute <|
@@ -386,18 +386,3 @@ scrim lift attributes =
             ++ attributes
         )
         none
-
-
-drawerView : Config msg -> Model -> List (Attribute msg) -> List (Element msg) -> Element msg
-drawerView config model attributes elements =
-    column
-        ([ width (px 256)
-         , height fill
-         , Background.color (rgb 255 255 255)
-         , Border.widthEach { bottom = 0, top = 0, left = 0, right = 1 }
-         , Border.color (rgba 0 0 0 0.12)
-         , padding 16
-         ]
-            ++ attributes
-        )
-        [ text "drawer" ]

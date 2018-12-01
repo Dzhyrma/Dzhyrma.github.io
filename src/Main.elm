@@ -7,7 +7,8 @@ import Element exposing (..)
 import Html exposing (Html)
 import Material.Helpers exposing (lift)
 import Material.Icon as Icon
-import Material.Layout as Layout
+import Material.Layout.Drawer as Drawer
+import Material.Layout.Layout as Layout
 import Task exposing (..)
 import Url exposing (Url)
 
@@ -128,53 +129,44 @@ body model =
     let
         device =
             classifyDevice model.windowSize
-    in
-    Element.layout []
-        (case device.class of
-            BigDesktop ->
-                Layout.view LayoutMsg
-                    model.layout
+
+        layoutAttributes =
+            case device.class of
+                BigDesktop ->
                     [ Layout.fixedDrawer
                     , Layout.clippedDrawer
                     ]
-                    { header = header model
-                    , drawer = [ text "Drawer element" ]
-                    , tabs = []
-                    , main = []
-                    }
 
-            Desktop ->
-                Layout.view LayoutMsg
-                    model.layout
+                Desktop ->
                     [ Layout.fixedDrawer
                     ]
-                    { header = header model
-                    , drawer = [ text "Drawer element" ]
-                    , tabs = []
-                    , main = []
-                    }
 
-            Tablet ->
-                Layout.view LayoutMsg
-                    model.layout
+                Tablet ->
                     [ Layout.smallScreen
                     ]
-                    { header = header model
-                    , drawer = [ text "Drawer element" ]
-                    , tabs = []
-                    , main = []
-                    }
 
-            Phone ->
-                Layout.view LayoutMsg
-                    model.layout
+                Phone ->
                     [ Layout.smallScreen
                     ]
-                    { header = header model
-                    , drawer = [ text "Drawer element" ]
-                    , tabs = []
-                    , main = []
-                    }
+
+        drawerElements =
+            [ Drawer.title "Drawer title" (Just "Drawer subtitle")
+            , Drawer.item [] "Item 1"
+            , Drawer.item [] "Item 2"
+            , Drawer.divider
+            , Drawer.item [] "Item 3"
+            , Drawer.item [] "Item 4"
+            ]
+    in
+    Element.layout []
+        (Layout.view LayoutMsg
+            model.layout
+            layoutAttributes
+            { header = header model
+            , drawer = drawerElements
+            , tabs = []
+            , main = []
+            }
         )
 
 
