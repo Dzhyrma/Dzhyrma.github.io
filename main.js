@@ -11725,7 +11725,6 @@ var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
 var mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
 };
-var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions = {preventDefault: true, stopPropagation: false};
 var elm$virtual_dom$VirtualDom$Custom = function (a) {
 	return {$: 'Custom', a: a};
 };
@@ -11846,8 +11845,6 @@ var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions = F3(
 				},
 				mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$eventDecoder));
 	});
-var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onEnd = A2(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions, 'touchend', mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions);
-var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onStart = A2(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions, 'touchstart', mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions);
 var author$project$Material$Layout$Layout$view = F4(
 	function (lift, model, properties, _n0) {
 		var header = _n0.header;
@@ -11876,13 +11873,19 @@ var author$project$Material$Layout$Layout$view = F4(
 					mdgriffith$elm_ui$Element$htmlAttribute(
 					A2(elm$html$Html$Attributes$style, 'transition', 'all .25s')),
 					mdgriffith$elm_ui$Element$htmlAttribute(
-					mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onStart(
+					A3(
+						mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions,
+						'touchstart',
+						{preventDefault: false, stopPropagation: false},
 						A2(
 							elm$core$Basics$composeL,
 							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchStartAt),
 							author$project$Material$Layout$Layout$touchCoordinates))),
 					mdgriffith$elm_ui$Element$htmlAttribute(
-					mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onEnd(
+					A3(
+						mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions,
+						'touchstart',
+						{preventDefault: false, stopPropagation: false},
 						A2(
 							elm$core$Basics$composeL,
 							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchEndAt),

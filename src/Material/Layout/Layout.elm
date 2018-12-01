@@ -270,8 +270,8 @@ view lift model properties { header, drawer, tabs, main } =
                             )
                     , htmlAttribute <| Html.Attributes.style "will-change" "transform"
                     , htmlAttribute <| Html.Attributes.style "transition" "all .25s"
-                    , htmlAttribute <| Touch.onStart (lift << TouchStartAt << touchCoordinates)
-                    , htmlAttribute <| Touch.onEnd (lift << TouchEndAt << touchCoordinates)
+                    , htmlAttribute <| Touch.onWithOptions "touchstart" { stopPropagation = False, preventDefault = False } (lift << TouchStartAt << touchCoordinates)
+                    , htmlAttribute <| Touch.onWithOptions "touchstart" { stopPropagation = False, preventDefault = False } (lift << TouchEndAt << touchCoordinates)
                     ]
 
                  else
