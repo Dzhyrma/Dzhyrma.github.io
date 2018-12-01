@@ -7,6 +7,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Html
 import Html.Attributes
+import Html.Events.Extra.Touch as Touch
 import Material.Icon as Icon
 import Material.Options as Options exposing (css)
 import Material.Options.Internal as Internal
@@ -18,12 +19,14 @@ import Material.Options.Internal as Internal
 
 type alias Model =
     { isDrawerOpen : Bool
+    , touchCoordinatesStart : Maybe ( Float, Float )
     }
 
 
 defaultModel : Model
 defaultModel =
     { isDrawerOpen = False
+    , touchCoordinatesStart = Nothing
     }
 
 
@@ -145,24 +148,62 @@ onSelectTab =
 
 
 type Msg
-    = ToggleDrawer
-    | Noop
+    = Noop
+    | ToggleDrawer
+    | TouchStartAt ( Float, Float )
+    | TouchEndAt ( Float, Float )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    update_ identity msg model
-        |> Maybe.withDefault ( model, Cmd.none )
-
-
-update_ : (Msg -> msg) -> Msg -> Model -> Maybe ( Model, Cmd msg )
-update_ lift action model =
-    case action of
+update message model =
+    case message of
         Noop ->
-            Nothing
+            ( model, Cmd.none )
 
         ToggleDrawer ->
-            Just <| ( { model | isDrawerOpen = not model.isDrawerOpen }, Cmd.none )
+            ( { model | isDrawerOpen = not model.isDrawerOpen }, Cmd.none )
+
+        TouchStartAt coordinates ->
+            case model.touchCoordinatesStart of
+                Just _ ->
+                    ( model, Cmd.none )
+
+                Nothing ->
+                    ( { model | touchCoordinatesStart = Just coordinates }, Cmd.none )
+
+        TouchEndAt ( endX, endY ) ->
+            case model.touchCoordinatesStart of
+                Just ( startX, startY ) ->
+                    let
+                        vectorX =
+                            endX - startX
+
+                        vectorY =
+                            endY - startY
+
+                        swipeLeft =
+                            if abs vectorY < abs vectorX then
+                                if vectorX < 0 then
+                                    Just True
+
+                                else
+                                    Just False
+
+                            else
+                                Nothing
+
+                        isDrawerOpen =
+                            case swipeLeft of
+                                Just True ->
+                                    False
+
+                                _ ->
+                                    model.isDrawerOpen
+                    in
+                    ( { model | touchCoordinatesStart = Nothing, isDrawerOpen = isDrawerOpen }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
 
 
@@ -229,6 +270,8 @@ view lift model properties { header, drawer, tabs, main } =
                             )
                     , htmlAttribute <| Html.Attributes.style "will-change" "transform"
                     , htmlAttribute <| Html.Attributes.style "transition" "all .25s"
+                    , htmlAttribute <| Touch.onStart (lift << TouchStartAt << touchCoordinates)
+                    , htmlAttribute <| Touch.onEnd (lift << TouchEndAt << touchCoordinates)
                     ]
 
                  else
@@ -246,7 +289,7 @@ view lift model properties { header, drawer, tabs, main } =
                         ((htmlAttribute <| Html.Attributes.style "will-change" "opacity")
                             :: (htmlAttribute <| Html.Attributes.style "transition" "all .25s")
                             :: (if drawerIsVisible then
-                                    []
+                                    [ Events.onClick (lift ToggleDrawer) ]
 
                                 else
                                     [ htmlAttribute <| Html.Attributes.style "pointer-events" "none"
@@ -288,6 +331,13 @@ view lift model properties { header, drawer, tabs, main } =
             , inFront drawerElement
             ]
             (text "Layout")
+
+
+touchCoordinates : Touch.Event -> ( Float, Float )
+touchCoordinates touchEvent =
+    List.head touchEvent.changedTouches
+        |> Maybe.map .clientPos
+        |> Maybe.withDefault ( 0, 0 )
 
 
 headerView : Config msg -> Model -> ( Maybe (Element msg), Header msg ) -> Element msg
@@ -332,7 +382,6 @@ scrim lift attributes =
         ([ width fill
          , height fill
          , Background.color (rgba 0 0 0 0.32)
-         , Events.onClick (lift ToggleDrawer)
          ]
             ++ attributes
         )

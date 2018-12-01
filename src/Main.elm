@@ -97,8 +97,8 @@ update msg model =
         WindowSizeChanged newWidth newHeight ->
             ( { model | windowSize = WindowSize newWidth newHeight }, Cmd.none )
 
-        LayoutMsg a ->
-            lift .layout (\m x -> { m | layout = x }) LayoutMsg Layout.update a model
+        LayoutMsg layoutMsg ->
+            lift .layout (\m x -> { m | layout = x }) LayoutMsg Layout.update layoutMsg model
 
 
 
