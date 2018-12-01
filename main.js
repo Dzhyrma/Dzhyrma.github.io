@@ -4338,7 +4338,8 @@ var author$project$Main$UrlChanged = function (a) {
 	return {$: 'UrlChanged', a: a};
 };
 var elm$core$Basics$False = {$: 'False'};
-var author$project$Material$Layout$defaultModel = {isDrawerOpen: false};
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
+var author$project$Material$Layout$Layout$defaultModel = {isDrawerOpen: false, touchCoordinatesStart: elm$core$Maybe$Nothing};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4601,7 +4602,6 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4818,7 +4818,7 @@ var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = F3(
 	function (flags, url, key) {
 		return _Utils_Tuple2(
-			{key: key, layout: author$project$Material$Layout$defaultModel, url: url, windowSize: flags},
+			{key: key, layout: author$project$Material$Layout$Layout$defaultModel, url: url, windowSize: flags},
 			elm$core$Platform$Cmd$none);
 	});
 var author$project$Main$WindowSizeChanged = F2(
@@ -5577,35 +5577,68 @@ var author$project$Material$Helpers$lift = F6(
 			A2(set, model, innerModel),
 			A2(elm$core$Platform$Cmd$map, fwd, e));
 	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
 var elm$core$Basics$not = _Basics_not;
-var author$project$Material$Layout$update_ = F3(
-	function (lift, action, model) {
-		if (action.$ === 'Noop') {
-			return elm$core$Maybe$Nothing;
-		} else {
-			return elm$core$Maybe$Just(
-				_Utils_Tuple2(
+var author$project$Material$Layout$Layout$update = F2(
+	function (message, model) {
+		switch (message.$) {
+			case 'Noop':
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			case 'ToggleDrawer':
+				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{isDrawerOpen: !model.isDrawerOpen}),
-					elm$core$Platform$Cmd$none));
+					elm$core$Platform$Cmd$none);
+			case 'TouchStartAt':
+				var coordinates = message.a;
+				var _n1 = model.touchCoordinatesStart;
+				if (_n1.$ === 'Just') {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								touchCoordinatesStart: elm$core$Maybe$Just(coordinates)
+							}),
+						elm$core$Platform$Cmd$none);
+				}
+			default:
+				var _n2 = message.a;
+				var endX = _n2.a;
+				var endY = _n2.b;
+				var _n3 = model.touchCoordinatesStart;
+				if (_n3.$ === 'Just') {
+					var _n4 = _n3.a;
+					var startX = _n4.a;
+					var startY = _n4.b;
+					var vectorY = endY - startY;
+					var vectorX = endX - startX;
+					var swipeLeft = (_Utils_cmp(
+						elm$core$Basics$abs(vectorY),
+						elm$core$Basics$abs(vectorX)) < 0) ? ((vectorX < 0) ? elm$core$Maybe$Just(true) : elm$core$Maybe$Just(false)) : elm$core$Maybe$Nothing;
+					var isDrawerOpen = function () {
+						if ((swipeLeft.$ === 'Just') && swipeLeft.a) {
+							return false;
+						} else {
+							return model.isDrawerOpen;
+						}
+					}();
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{isDrawerOpen: isDrawerOpen, touchCoordinatesStart: elm$core$Maybe$Nothing}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
 		}
-	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var author$project$Material$Layout$update = F2(
-	function (msg, model) {
-		return A2(
-			elm$core$Maybe$withDefault,
-			_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
-			A3(author$project$Material$Layout$update_, elm$core$Basics$identity, msg, model));
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
@@ -5695,7 +5728,7 @@ var author$project$Main$update = F2(
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
-				var a = msg.a;
+				var layoutMsg = msg.a;
 				return A6(
 					author$project$Material$Helpers$lift,
 					function ($) {
@@ -5708,8 +5741,8 @@ var author$project$Main$update = F2(
 								{layout: x});
 						}),
 					author$project$Main$LayoutMsg,
-					author$project$Material$Layout$update,
-					a,
+					author$project$Material$Layout$Layout$update,
+					layoutMsg,
 					model);
 		}
 	});
@@ -5824,7 +5857,7 @@ var author$project$Material$Icon$view = F2(
 var author$project$Material$Icon$i = function (name) {
 	return A2(author$project$Material$Icon$view, name, _List_Nil);
 };
-var author$project$Material$Layout$Header = F2(
+var author$project$Material$Layout$Layout$Header = F2(
 	function (title, actionButtons) {
 		return {actionButtons: actionButtons, title: title};
 	});
@@ -5836,7 +5869,7 @@ var mdgriffith$elm_ui$Element$text = function (content) {
 };
 var author$project$Main$header = function (model) {
 	return A2(
-		author$project$Material$Layout$Header,
+		author$project$Material$Layout$Layout$Header,
 		mdgriffith$elm_ui$Element$text('Main page'),
 		_List_fromArray(
 			[
@@ -5845,97 +5878,6 @@ var author$project$Main$header = function (model) {
 				author$project$Material$Icon$i('more_vert')
 			]));
 };
-var author$project$Material$Options$Internal$Set = function (a) {
-	return {$: 'Set', a: a};
-};
-var author$project$Material$Options$Internal$option = author$project$Material$Options$Internal$Set;
-var author$project$Material$Layout$clippedDrawer = author$project$Material$Options$Internal$option(
-	function (config) {
-		return _Utils_update(
-			config,
-			{clippedDrawer: true});
-	});
-var author$project$Material$Layout$fixedDrawer = author$project$Material$Options$Internal$option(
-	function (config) {
-		return _Utils_update(
-			config,
-			{fixedDrawer: true});
-	});
-var author$project$Material$Layout$smallScreen = author$project$Material$Options$Internal$option(
-	function (config) {
-		return _Utils_update(
-			config,
-			{smallScreen: true});
-	});
-var author$project$Material$Layout$Standard = {$: 'Standard'};
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var author$project$Material$Layout$defaultConfig = {clippedDrawer: false, fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, smallScreen: false, transparentHeader: false};
-var author$project$Material$Options$Internal$CSS = function (a) {
-	return {$: 'CSS', a: a};
-};
-var author$project$Material$Options$css = F2(
-	function (key, value) {
-		return author$project$Material$Options$Internal$CSS(
-			_Utils_Tuple2(key, value));
-	});
-var elm$html$Html$button = _VirtualDom_node('button');
-var author$project$Material$Icon$button24 = F3(
-	function (name, buttonOptions, iconOptions) {
-		var allButtonOptions = A2(
-			elm$core$List$cons,
-			A2(author$project$Material$Options$css, 'background', 'none'),
-			A2(
-				elm$core$List$cons,
-				A2(author$project$Material$Options$css, 'border', '0'),
-				A2(
-					elm$core$List$cons,
-					A2(author$project$Material$Options$css, 'outline', 'none'),
-					A2(
-						elm$core$List$cons,
-						A2(author$project$Material$Options$css, 'cursor', 'pointer'),
-						A2(
-							elm$core$List$cons,
-							A2(author$project$Material$Options$css, 'padding', '0'),
-							A2(
-								elm$core$List$cons,
-								A2(author$project$Material$Options$css, 'font-family', 'inherit'),
-								A2(
-									elm$core$List$cons,
-									A2(author$project$Material$Options$css, 'color', 'inherit'),
-									A2(
-										elm$core$List$cons,
-										A2(author$project$Material$Options$css, 'font', 'inherit'),
-										A2(
-											elm$core$List$cons,
-											A2(author$project$Material$Options$css, 'height', '24px'),
-											A2(
-												elm$core$List$cons,
-												A2(author$project$Material$Options$css, 'width', '24px'),
-												buttonOptions))))))))));
-		return mdgriffith$elm_ui$Element$html(
-			A3(
-				author$project$Material$Icon$styled,
-				elm$html$Html$button,
-				allButtonOptions,
-				_List_fromArray(
-					[
-						A3(
-						author$project$Material$Icon$styled,
-						elm$html$Html$i,
-						A2(
-							elm$core$List$cons,
-							author$project$Material$Options$cs('material-icons'),
-							iconOptions),
-						_List_fromArray(
-							[
-								elm$html$Html$text(name)
-							]))
-					])));
-	});
-var author$project$Material$Layout$ToggleDrawer = {$: 'ToggleDrawer'};
-var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
 };
@@ -6163,6 +6105,15 @@ var elm$core$Set$member = F2(
 	function (key, _n0) {
 		var dict = _n0.a;
 		return A2(elm$core$Dict$member, key, dict);
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
 	});
 var mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
@@ -11128,10 +11079,12 @@ var mdgriffith$elm_ui$Element$el = F2(
 				_List_fromArray(
 					[child])));
 	});
-var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
+var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
+	return {$: 'Fill', a: a};
 };
-var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
+var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
+var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
+var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
 var mdgriffith$elm_ui$Internal$Flag$padding = mdgriffith$elm_ui$Internal$Flag$flag(2);
 var mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
 	function (a, b, c, d, e) {
@@ -11141,84 +11094,35 @@ var mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
 	function (a, b) {
 		return {$: 'StyleClass', a: a, b: b};
 	});
-var mdgriffith$elm_ui$Element$padding = function (x) {
-	return A2(
+var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
+	function (top, right, bottom, left) {
+		return 'pad-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left)))))));
+	});
+var mdgriffith$elm_ui$Element$paddingEach = function (_n0) {
+	var top = _n0.top;
+	var right = _n0.right;
+	var bottom = _n0.bottom;
+	var left = _n0.left;
+	return (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) ? A2(
 		mdgriffith$elm_ui$Internal$Model$StyleClass,
 		mdgriffith$elm_ui$Internal$Flag$padding,
 		A5(
 			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(x),
-			x,
-			x,
-			x,
-			x));
+			'p-' + elm$core$String$fromInt(top),
+			top,
+			top,
+			top,
+			top)) : A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			A4(mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
+			top,
+			right,
+			bottom,
+			left));
 };
-var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
-var mdgriffith$elm_ui$Internal$Model$Class = F2(
-	function (a, b) {
-		return {$: 'Class', a: a, b: b};
-	});
-var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'click',
-		elm$json$Json$Decode$succeed(msg));
-};
-var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
-var author$project$Material$Layout$drawerButton = function (lift) {
-	return A2(
-		mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[
-				mdgriffith$elm_ui$Element$padding(16),
-				mdgriffith$elm_ui$Element$pointer,
-				mdgriffith$elm_ui$Element$htmlAttribute(
-				elm$html$Html$Attributes$type_('button')),
-				mdgriffith$elm_ui$Element$Events$onClick(
-				lift(author$project$Material$Layout$ToggleDrawer))
-			]),
-		A3(author$project$Material$Icon$button24, 'menu', _List_Nil, _List_Nil));
-};
-var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
-var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
-var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
-	return mdgriffith$elm_ui$Internal$Model$Attr(
-		elm$html$Html$Attributes$class(cls));
-};
-var mdgriffith$elm_ui$Element$column = F2(
-	function (attrs, children) {
-		return A4(
-			mdgriffith$elm_ui$Internal$Model$element,
-			mdgriffith$elm_ui$Internal$Model$asColumn,
-			mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				elm$core$List$cons,
-				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
-				A2(
-					elm$core$List$cons,
-					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
-					A2(
-						elm$core$List$cons,
-						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
-var mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
-	return {$: 'Fill', a: a};
-};
-var mdgriffith$elm_ui$Element$fill = mdgriffith$elm_ui$Internal$Model$Fill(1);
 var mdgriffith$elm_ui$Internal$Model$Px = function (a) {
 	return {$: 'Px', a: a};
 };
@@ -11227,12 +11131,11 @@ var mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
 		return {$: 'Rgba', a: a, b: b, c: c, d: d};
 	});
-var mdgriffith$elm_ui$Element$rgb = F3(
-	function (r, g, b) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+var mdgriffith$elm_ui$Element$rgba255 = F4(
+	function (red, green, blue, a) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, a);
 	});
-var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
-var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
+var mdgriffith$elm_ui$Internal$Flag$borderColor = mdgriffith$elm_ui$Internal$Flag$flag(28);
 var mdgriffith$elm_ui$Internal$Model$Colored = F3(
 	function (a, b, c) {
 		return {$: 'Colored', a: a, b: b, c: c};
@@ -11244,17 +11147,6 @@ var mdgriffith$elm_ui$Internal$Model$formatColorClass = function (_n0) {
 	var alpha = _n0.d;
 	return mdgriffith$elm_ui$Internal$Model$floatClass(red) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(green) + ('-' + (mdgriffith$elm_ui$Internal$Model$floatClass(blue) + ('-' + mdgriffith$elm_ui$Internal$Model$floatClass(alpha))))));
 };
-var mdgriffith$elm_ui$Element$Background$color = function (clr) {
-	return A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$bgColor,
-		A3(
-			mdgriffith$elm_ui$Internal$Model$Colored,
-			'bg-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'background-color',
-			clr));
-};
-var mdgriffith$elm_ui$Internal$Flag$borderColor = mdgriffith$elm_ui$Internal$Flag$flag(28);
 var mdgriffith$elm_ui$Element$Border$color = function (clr) {
 	return A2(
 		mdgriffith$elm_ui$Internal$Model$StyleClass,
@@ -11310,66 +11202,26 @@ var mdgriffith$elm_ui$Element$Border$widthEach = function (_n0) {
 			bottom,
 			left));
 };
-var author$project$Material$Layout$drawerView = F4(
-	function (config, model, attributes, elements) {
-		return A2(
-			mdgriffith$elm_ui$Element$column,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$width(
-						mdgriffith$elm_ui$Element$px(256)),
-						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
-						mdgriffith$elm_ui$Element$Background$color(
-						A3(mdgriffith$elm_ui$Element$rgb, 255, 255, 255)),
-						mdgriffith$elm_ui$Element$Border$widthEach(
-						{bottom: 0, left: 0, right: 1, top: 0}),
-						mdgriffith$elm_ui$Element$Border$color(
-						A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.12)),
-						mdgriffith$elm_ui$Element$padding(16)
-					]),
-				attributes),
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$text('drawer')
-				]));
-	});
-var mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
-	return {$: 'AlignX', a: a};
+var author$project$Material$Layout$Drawer$divider = A2(
+	mdgriffith$elm_ui$Element$el,
+	_List_fromArray(
+		[
+			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+			mdgriffith$elm_ui$Element$height(
+			mdgriffith$elm_ui$Element$px(1)),
+			mdgriffith$elm_ui$Element$Border$widthEach(
+			{bottom: 1, left: 0, right: 0, top: 0}),
+			mdgriffith$elm_ui$Element$Border$color(
+			A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.12)),
+			mdgriffith$elm_ui$Element$paddingEach(
+			{bottom: 0, left: 0, right: 0, top: 8})
+		]),
+	mdgriffith$elm_ui$Element$none);
+var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
+	return {$: 'AlignY', a: a};
 };
-var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
-var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
-var mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
-var mdgriffith$elm_ui$Element$none = mdgriffith$elm_ui$Internal$Model$Empty;
-var mdgriffith$elm_ui$Internal$Model$paddingName = F4(
-	function (top, right, bottom, left) {
-		return 'pad-' + (elm$core$String$fromInt(top) + ('-' + (elm$core$String$fromInt(right) + ('-' + (elm$core$String$fromInt(bottom) + ('-' + elm$core$String$fromInt(left)))))));
-	});
-var mdgriffith$elm_ui$Element$paddingEach = function (_n0) {
-	var top = _n0.top;
-	var right = _n0.right;
-	var bottom = _n0.bottom;
-	var left = _n0.left;
-	return (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) ? A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + elm$core$String$fromInt(top),
-			top,
-			top,
-			top,
-			top)) : A2(
-		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			A4(mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
-			top,
-			right,
-			bottom,
-			left));
-};
+var mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
+var mdgriffith$elm_ui$Element$centerY = mdgriffith$elm_ui$Internal$Model$AlignY(mdgriffith$elm_ui$Internal$Model$CenterY);
 var mdgriffith$elm_ui$Element$paddingXY = F2(
 	function (x, y) {
 		return _Utils_eq(x, y) ? A2(
@@ -11394,6 +11246,13 @@ var mdgriffith$elm_ui$Element$paddingXY = F2(
 	});
 var mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
 var mdgriffith$elm_ui$Internal$Model$asRow = mdgriffith$elm_ui$Internal$Model$AsRow;
+var mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
+	return mdgriffith$elm_ui$Internal$Model$Attr(
+		elm$html$Html$Attributes$class(cls));
+};
 var mdgriffith$elm_ui$Element$row = F2(
 	function (attrs, children) {
 		return A4(
@@ -11409,6 +11268,72 @@ var mdgriffith$elm_ui$Element$row = F2(
 					A2(
 						elm$core$List$cons,
 						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
+var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var mdgriffith$elm_ui$Internal$Flag$fontSize = mdgriffith$elm_ui$Internal$Flag$flag(4);
+var mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
+	return {$: 'FontSize', a: a};
+};
+var mdgriffith$elm_ui$Element$Font$size = function (i) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$fontSize,
+		mdgriffith$elm_ui$Internal$Model$FontSize(i));
+};
+var author$project$Material$Layout$Drawer$item = F2(
+	function (attributes, itemText) {
+		return A2(
+			mdgriffith$elm_ui$Element$row,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$height(
+						mdgriffith$elm_ui$Element$px(48)),
+						A2(mdgriffith$elm_ui$Element$paddingXY, 16, 0),
+						mdgriffith$elm_ui$Element$Font$color(
+						A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.87)),
+						mdgriffith$elm_ui$Element$Font$size(16)
+					]),
+				attributes),
+			_List_fromArray(
+				[
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[mdgriffith$elm_ui$Element$centerY]),
+					mdgriffith$elm_ui$Element$text(itemText))
+				]));
+	});
+var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
+var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
+var mdgriffith$elm_ui$Element$column = F2(
+	function (attrs, children) {
+		return A4(
+			mdgriffith$elm_ui$Internal$Model$element,
+			mdgriffith$elm_ui$Internal$Model$asColumn,
+			mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				elm$core$List$cons,
+				mdgriffith$elm_ui$Internal$Model$htmlClass(mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
+				A2(
+					elm$core$List$cons,
+					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$shrink),
+					A2(
+						elm$core$List$cons,
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$shrink),
 						attrs))),
 			mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
 	});
@@ -11431,18 +11356,237 @@ var mdgriffith$elm_ui$Element$spacing = function (x) {
 			x,
 			x));
 };
-var mdgriffith$elm_ui$Internal$Flag$fontColor = mdgriffith$elm_ui$Internal$Flag$flag(14);
-var mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+var author$project$Material$Layout$Drawer$title = F2(
+	function (titleText, subtitleText) {
+		return A2(
+			mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+					mdgriffith$elm_ui$Element$height(
+					mdgriffith$elm_ui$Element$px(64)),
+					A2(mdgriffith$elm_ui$Element$paddingXY, 16, 0),
+					mdgriffith$elm_ui$Element$spacing(6)
+				]),
+			_List_fromArray(
+				[
+					A2(
+					mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[mdgriffith$elm_ui$Element$centerY]),
+					mdgriffith$elm_ui$Element$text(titleText)),
+					function () {
+					if (subtitleText.$ === 'Just') {
+						var subtitle = subtitleText.a;
+						return A2(
+							mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$centerY,
+									mdgriffith$elm_ui$Element$Font$color(
+									A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.54)),
+									mdgriffith$elm_ui$Element$Font$size(13)
+								]),
+							mdgriffith$elm_ui$Element$text(subtitle));
+					} else {
+						return mdgriffith$elm_ui$Element$none;
+					}
+				}()
+				]));
+	});
+var author$project$Material$Options$Internal$Set = function (a) {
+	return {$: 'Set', a: a};
+};
+var author$project$Material$Options$Internal$option = author$project$Material$Options$Internal$Set;
+var author$project$Material$Layout$Layout$clippedDrawer = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{clippedDrawer: true});
+	});
+var author$project$Material$Layout$Layout$fixedDrawer = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{fixedDrawer: true});
+	});
+var author$project$Material$Layout$Layout$smallScreen = author$project$Material$Options$Internal$option(
+	function (config) {
+		return _Utils_update(
+			config,
+			{smallScreen: true});
+	});
+var mdgriffith$elm_ui$Element$rgb255 = F3(
+	function (red, green, blue) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+	});
+var mdgriffith$elm_ui$Internal$Flag$overflow = mdgriffith$elm_ui$Internal$Flag$flag(20);
+var mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$scrollbarY = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$overflow, mdgriffith$elm_ui$Internal$Style$classes.scrollbarsY);
+var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
+var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 	return A2(
 		mdgriffith$elm_ui$Internal$Model$StyleClass,
-		mdgriffith$elm_ui$Internal$Flag$fontColor,
+		mdgriffith$elm_ui$Internal$Flag$bgColor,
 		A3(
 			mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
+			'bg-' + mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'background-color',
+			clr));
 };
-var author$project$Material$Layout$headerView = F3(
+var author$project$Material$Layout$Drawer$view = F2(
+	function (attributes, elements) {
+		return A2(
+			mdgriffith$elm_ui$Element$column,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(
+						mdgriffith$elm_ui$Element$px(256)),
+						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$Background$color(
+						A3(mdgriffith$elm_ui$Element$rgb255, 255, 255, 255)),
+						mdgriffith$elm_ui$Element$Border$widthEach(
+						{bottom: 0, left: 0, right: 1, top: 0}),
+						mdgriffith$elm_ui$Element$Border$color(
+						A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.12)),
+						mdgriffith$elm_ui$Element$scrollbarY
+					]),
+				attributes),
+			elements);
+	});
+var author$project$Material$Layout$Layout$ToggleDrawer = {$: 'ToggleDrawer'};
+var author$project$Material$Layout$Layout$TouchEndAt = function (a) {
+	return {$: 'TouchEndAt', a: a};
+};
+var author$project$Material$Layout$Layout$TouchStartAt = function (a) {
+	return {$: 'TouchStartAt', a: a};
+};
+var author$project$Material$Layout$Layout$Standard = {$: 'Standard'};
+var author$project$Material$Layout$Layout$defaultConfig = {clippedDrawer: false, fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, smallScreen: false, transparentHeader: false};
+var author$project$Material$Options$Internal$CSS = function (a) {
+	return {$: 'CSS', a: a};
+};
+var author$project$Material$Options$css = F2(
+	function (key, value) {
+		return author$project$Material$Options$Internal$CSS(
+			_Utils_Tuple2(key, value));
+	});
+var elm$html$Html$button = _VirtualDom_node('button');
+var author$project$Material$Icon$button24 = F3(
+	function (name, buttonOptions, iconOptions) {
+		var allButtonOptions = A2(
+			elm$core$List$cons,
+			A2(author$project$Material$Options$css, 'background', 'none'),
+			A2(
+				elm$core$List$cons,
+				A2(author$project$Material$Options$css, 'border', '0'),
+				A2(
+					elm$core$List$cons,
+					A2(author$project$Material$Options$css, 'outline', 'none'),
+					A2(
+						elm$core$List$cons,
+						A2(author$project$Material$Options$css, 'cursor', 'pointer'),
+						A2(
+							elm$core$List$cons,
+							A2(author$project$Material$Options$css, 'padding', '0'),
+							A2(
+								elm$core$List$cons,
+								A2(author$project$Material$Options$css, 'font-family', 'inherit'),
+								A2(
+									elm$core$List$cons,
+									A2(author$project$Material$Options$css, 'color', 'inherit'),
+									A2(
+										elm$core$List$cons,
+										A2(author$project$Material$Options$css, 'font', 'inherit'),
+										A2(
+											elm$core$List$cons,
+											A2(author$project$Material$Options$css, 'height', '24px'),
+											A2(
+												elm$core$List$cons,
+												A2(author$project$Material$Options$css, 'width', '24px'),
+												buttonOptions))))))))));
+		return mdgriffith$elm_ui$Element$html(
+			A3(
+				author$project$Material$Icon$styled,
+				elm$html$Html$button,
+				allButtonOptions,
+				_List_fromArray(
+					[
+						A3(
+						author$project$Material$Icon$styled,
+						elm$html$Html$i,
+						A2(
+							elm$core$List$cons,
+							author$project$Material$Options$cs('material-icons'),
+							iconOptions),
+						_List_fromArray(
+							[
+								elm$html$Html$text(name)
+							]))
+					])));
+	});
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var mdgriffith$elm_ui$Element$htmlAttribute = mdgriffith$elm_ui$Internal$Model$Attr;
+var mdgriffith$elm_ui$Element$padding = function (x) {
+	return A2(
+		mdgriffith$elm_ui$Internal$Model$StyleClass,
+		mdgriffith$elm_ui$Internal$Flag$padding,
+		A5(
+			mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+			'p-' + elm$core$String$fromInt(x),
+			x,
+			x,
+			x,
+			x));
+};
+var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
+var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var mdgriffith$elm_ui$Element$Events$onClick = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onClick);
+var author$project$Material$Layout$Layout$drawerButton = function (lift) {
+	return A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$padding(16),
+				mdgriffith$elm_ui$Element$pointer,
+				mdgriffith$elm_ui$Element$htmlAttribute(
+				elm$html$Html$Attributes$type_('button')),
+				mdgriffith$elm_ui$Element$Events$onClick(
+				lift(author$project$Material$Layout$Layout$ToggleDrawer))
+			]),
+		A3(author$project$Material$Icon$button24, 'menu', _List_Nil, _List_Nil));
+};
+var mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
+	return {$: 'AlignX', a: a};
+};
+var mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
+var mdgriffith$elm_ui$Element$alignRight = mdgriffith$elm_ui$Internal$Model$AlignX(mdgriffith$elm_ui$Internal$Model$Right);
+var mdgriffith$elm_ui$Element$rgb = F3(
+	function (r, g, b) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, r, g, b, 1);
+	});
+var author$project$Material$Layout$Layout$headerView = F3(
 	function (config, model, _n0) {
 		var headerDrawerButton = _n0.a;
 		var header = _n0.b;
@@ -11492,7 +11636,8 @@ var author$project$Material$Layout$headerView = F3(
 						header.actionButtons))
 				]));
 	});
-var author$project$Material$Layout$scrim = F2(
+var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
+var author$project$Material$Layout$Layout$scrim = F2(
 	function (lift, attributes) {
 		return A2(
 			mdgriffith$elm_ui$Element$el,
@@ -11502,13 +11647,31 @@ var author$project$Material$Layout$scrim = F2(
 						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
 						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
 						mdgriffith$elm_ui$Element$Background$color(
-						A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.32)),
-						mdgriffith$elm_ui$Element$Events$onClick(
-						lift(author$project$Material$Layout$ToggleDrawer))
+						A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.32))
 					]),
 				attributes),
 			mdgriffith$elm_ui$Element$none);
 	});
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var author$project$Material$Layout$Layout$touchCoordinates = function (touchEvent) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		_Utils_Tuple2(0, 0),
+		A2(
+			elm$core$Maybe$map,
+			function ($) {
+				return $.clientPos;
+			},
+			elm$core$List$head(touchEvent.changedTouches)));
+};
 var author$project$Material$Options$Internal$collect1 = F2(
 	function (property, summary) {
 		switch (property.$) {
@@ -11562,22 +11725,143 @@ var mdgriffith$elm_ui$Internal$Model$Nearby = F2(
 var mdgriffith$elm_ui$Element$inFront = function (element) {
 	return A2(mdgriffith$elm_ui$Internal$Model$Nearby, mdgriffith$elm_ui$Internal$Model$InFront, element);
 };
-var author$project$Material$Layout$view = F4(
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions = {preventDefault: true, stopPropagation: false};
+var elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
+};
+var elm$html$Html$Events$custom = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Custom(decoder));
+	});
+var elm$json$Json$Decode$map4 = _Json_map4;
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$Event = F4(
+	function (keys, changedTouches, targetTouches, touches) {
+		return {changedTouches: changedTouches, keys: keys, targetTouches: targetTouches, touches: touches};
+	});
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$Touch = F4(
+	function (identifier, clientPos, pagePos, screenPos) {
+		return {clientPos: clientPos, identifier: identifier, pagePos: pagePos, screenPos: screenPos};
+	});
+var elm$json$Json$Decode$float = _Json_decodeFloat;
+var mpizenberg$elm_pointer_events$Internal$Decode$clientPos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'clientX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'clientY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Internal$Decode$pagePos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'pageX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'pageY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Internal$Decode$screenPos = A3(
+	elm$json$Json$Decode$map2,
+	F2(
+		function (a, b) {
+			return _Utils_Tuple2(a, b);
+		}),
+	A2(elm$json$Json$Decode$field, 'screenX', elm$json$Json$Decode$float),
+	A2(elm$json$Json$Decode$field, 'screenY', elm$json$Json$Decode$float));
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchDecoder = A5(
+	elm$json$Json$Decode$map4,
+	mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$Touch,
+	A2(elm$json$Json$Decode$field, 'identifier', elm$json$Json$Decode$int),
+	mpizenberg$elm_pointer_events$Internal$Decode$clientPos,
+	mpizenberg$elm_pointer_events$Internal$Decode$pagePos,
+	mpizenberg$elm_pointer_events$Internal$Decode$screenPos);
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var mpizenberg$elm_pointer_events$Internal$Decode$all = A2(
+	elm$core$List$foldr,
+	elm$json$Json$Decode$map2(elm$core$List$cons),
+	elm$json$Json$Decode$succeed(_List_Nil));
+var mpizenberg$elm_pointer_events$Internal$Decode$dynamicListOf = function (itemDecoder) {
+	var decodeOne = function (n) {
+		return A2(
+			elm$json$Json$Decode$field,
+			elm$core$String$fromInt(n),
+			itemDecoder);
+	};
+	var decodeN = function (n) {
+		return mpizenberg$elm_pointer_events$Internal$Decode$all(
+			A2(
+				elm$core$List$map,
+				decodeOne,
+				A2(elm$core$List$range, 0, n - 1)));
+	};
+	return A2(
+		elm$json$Json$Decode$andThen,
+		decodeN,
+		A2(elm$json$Json$Decode$field, 'length', elm$json$Json$Decode$int));
+};
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchListDecoder = mpizenberg$elm_pointer_events$Internal$Decode$dynamicListOf;
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var elm$json$Json$Decode$map3 = _Json_map3;
+var mpizenberg$elm_pointer_events$Internal$Decode$Keys = F3(
+	function (alt, ctrl, shift) {
+		return {alt: alt, ctrl: ctrl, shift: shift};
+	});
+var mpizenberg$elm_pointer_events$Internal$Decode$keys = A4(
+	elm$json$Json$Decode$map3,
+	mpizenberg$elm_pointer_events$Internal$Decode$Keys,
+	A2(elm$json$Json$Decode$field, 'altKey', elm$json$Json$Decode$bool),
+	A2(elm$json$Json$Decode$field, 'ctrlKey', elm$json$Json$Decode$bool),
+	A2(elm$json$Json$Decode$field, 'shiftKey', elm$json$Json$Decode$bool));
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$eventDecoder = A5(
+	elm$json$Json$Decode$map4,
+	mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$Event,
+	mpizenberg$elm_pointer_events$Internal$Decode$keys,
+	A2(
+		elm$json$Json$Decode$field,
+		'changedTouches',
+		mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchListDecoder(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchDecoder)),
+	A2(
+		elm$json$Json$Decode$field,
+		'targetTouches',
+		mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchListDecoder(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchDecoder)),
+	A2(
+		elm$json$Json$Decode$field,
+		'touches',
+		mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchListDecoder(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$touchDecoder)));
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions = F3(
+	function (event, options, tag) {
+		return A2(
+			elm$html$Html$Events$custom,
+			event,
+			A2(
+				elm$json$Json$Decode$map,
+				function (ev) {
+					return {
+						message: tag(ev),
+						preventDefault: options.preventDefault,
+						stopPropagation: options.stopPropagation
+					};
+				},
+				mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$eventDecoder));
+	});
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onEnd = A2(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions, 'touchend', mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions);
+var mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onStart = A2(mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions, 'touchstart', mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$defaultOptions);
+var author$project$Material$Layout$Layout$view = F4(
 	function (lift, model, properties, _n0) {
 		var header = _n0.header;
 		var drawer = _n0.drawer;
 		var tabs = _n0.tabs;
 		var main = _n0.main;
-		var summary = A2(author$project$Material$Options$Internal$collect, author$project$Material$Layout$defaultConfig, properties);
+		var summary = A2(author$project$Material$Options$Internal$collect, author$project$Material$Layout$Layout$defaultConfig, properties);
 		var hasDrawer = !_Utils_eq(drawer, _List_Nil);
 		var config = summary.config;
 		var drawerIsClipped = config.clippedDrawer;
 		var drawerIsFixed = config.fixedDrawer && (!config.smallScreen);
 		var drawerIsVisible = model.isDrawerOpen && (!drawerIsFixed);
-		var drawerElement = A4(
-			author$project$Material$Layout$drawerView,
-			config,
-			model,
+		var drawerElement = A2(
+			author$project$Material$Layout$Drawer$view,
 			(!drawerIsFixed) ? _List_fromArray(
 				[
 					mdgriffith$elm_ui$Element$htmlAttribute(
@@ -11590,14 +11874,26 @@ var author$project$Material$Layout$view = F4(
 					mdgriffith$elm_ui$Element$htmlAttribute(
 					A2(elm$html$Html$Attributes$style, 'will-change', 'transform')),
 					mdgriffith$elm_ui$Element$htmlAttribute(
-					A2(elm$html$Html$Attributes$style, 'transition', 'all .25s'))
+					A2(elm$html$Html$Attributes$style, 'transition', 'all .25s')),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onStart(
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchStartAt),
+							author$project$Material$Layout$Layout$touchCoordinates))),
+					mdgriffith$elm_ui$Element$htmlAttribute(
+					mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onEnd(
+						A2(
+							elm$core$Basics$composeL,
+							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchEndAt),
+							author$project$Material$Layout$Layout$touchCoordinates)))
 				]) : _List_Nil,
 			drawer);
 		var headerDrawerButton = (hasDrawer && (!drawerIsFixed)) ? elm$core$Maybe$Just(
-			author$project$Material$Layout$drawerButton(lift)) : elm$core$Maybe$Nothing;
+			author$project$Material$Layout$Layout$drawerButton(lift)) : elm$core$Maybe$Nothing;
 		var scrimElement = drawerIsFixed ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(
 			A2(
-				author$project$Material$Layout$scrim,
+				author$project$Material$Layout$Layout$scrim,
 				lift,
 				A2(
 					elm$core$List$cons,
@@ -11607,7 +11903,11 @@ var author$project$Material$Layout$view = F4(
 						elm$core$List$cons,
 						mdgriffith$elm_ui$Element$htmlAttribute(
 							A2(elm$html$Html$Attributes$style, 'transition', 'all .25s')),
-						drawerIsVisible ? _List_Nil : _List_fromArray(
+						drawerIsVisible ? _List_fromArray(
+							[
+								mdgriffith$elm_ui$Element$Events$onClick(
+								lift(author$project$Material$Layout$Layout$ToggleDrawer))
+							]) : _List_fromArray(
 							[
 								mdgriffith$elm_ui$Element$htmlAttribute(
 								A2(elm$html$Html$Attributes$style, 'pointer-events', 'none')),
@@ -11615,28 +11915,31 @@ var author$project$Material$Layout$view = F4(
 								A2(elm$html$Html$Attributes$style, 'opacity', '0'))
 							])))));
 		var headerElement = A3(
-			author$project$Material$Layout$headerView,
+			author$project$Material$Layout$Layout$headerView,
 			config,
 			model,
 			_Utils_Tuple2(headerDrawerButton, header));
 		return drawerIsFixed ? (drawerIsClipped ? A2(
-			mdgriffith$elm_ui$Element$el,
+			mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
 				[
 					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
 					mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
 					mdgriffith$elm_ui$Element$inFront(headerElement)
 				]),
-			A2(
-				mdgriffith$elm_ui$Element$row,
-				_List_fromArray(
-					[
-						mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
-						mdgriffith$elm_ui$Element$paddingEach(
-						{bottom: 0, left: 0, right: 0, top: 56})
-					]),
-				_List_fromArray(
-					[drawerElement]))) : A2(
+			_List_fromArray(
+				[
+					A2(
+					mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill),
+							mdgriffith$elm_ui$Element$paddingEach(
+							{bottom: 0, left: 0, right: 0, top: 56})
+						]),
+					_List_fromArray(
+						[drawerElement]))
+				])) : A2(
 			mdgriffith$elm_ui$Element$row,
 			_List_fromArray(
 				[
@@ -11825,14 +12128,10 @@ var mdgriffith$elm_ui$Internal$Model$renderRoot = F3(
 						[child]))));
 	});
 var mdgriffith$elm_ui$Internal$Flag$fontFamily = mdgriffith$elm_ui$Internal$Flag$flag(5);
-var mdgriffith$elm_ui$Internal$Flag$fontSize = mdgriffith$elm_ui$Internal$Flag$flag(4);
 var mdgriffith$elm_ui$Internal$Model$FontFamily = F2(
 	function (a, b) {
 		return {$: 'FontFamily', a: a, b: b};
 	});
-var mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
-	return {$: 'FontSize', a: a};
-};
 var mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 'SansSerif'};
 var mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
 	return {$: 'Typeface', a: a};
@@ -11937,79 +12236,73 @@ var mdgriffith$elm_ui$Element$layoutWith = F3(
 var mdgriffith$elm_ui$Element$layout = mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
 var author$project$Main$body = function (model) {
+	var drawerElements = _List_fromArray(
+		[
+			A2(
+			author$project$Material$Layout$Drawer$title,
+			'Drawer title',
+			elm$core$Maybe$Just('Drawer subtitle')),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 1'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 2'),
+			author$project$Material$Layout$Drawer$divider,
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 3'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 4'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 5'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 6'),
+			author$project$Material$Layout$Drawer$divider,
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 7'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 8'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 9'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 10'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 11'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 12'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 13'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 14'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 15'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 16'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 17'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 18'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 19'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 20'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 21'),
+			A2(author$project$Material$Layout$Drawer$item, _List_Nil, 'Item 22')
+		]);
 	var device = mdgriffith$elm_ui$Element$classifyDevice(model.windowSize);
+	var layoutAttributes = function () {
+		var _n0 = device._class;
+		switch (_n0.$) {
+			case 'BigDesktop':
+				return _List_fromArray(
+					[author$project$Material$Layout$Layout$fixedDrawer, author$project$Material$Layout$Layout$clippedDrawer]);
+			case 'Desktop':
+				return _List_fromArray(
+					[author$project$Material$Layout$Layout$fixedDrawer]);
+			case 'Tablet':
+				return _List_fromArray(
+					[author$project$Material$Layout$Layout$smallScreen]);
+			default:
+				return _List_fromArray(
+					[author$project$Material$Layout$Layout$smallScreen]);
+		}
+	}();
 	return A2(
 		mdgriffith$elm_ui$Element$layout,
-		_List_Nil,
-		function () {
-			var _n0 = device._class;
-			switch (_n0.$) {
-				case 'BigDesktop':
-					return A4(
-						author$project$Material$Layout$view,
-						author$project$Main$LayoutMsg,
-						model.layout,
-						_List_fromArray(
-							[author$project$Material$Layout$fixedDrawer, author$project$Material$Layout$clippedDrawer]),
-						{
-							drawer: _List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$text('Drawer element')
-								]),
-							header: author$project$Main$header(model),
-							main: _List_Nil,
-							tabs: _List_Nil
-						});
-				case 'Desktop':
-					return A4(
-						author$project$Material$Layout$view,
-						author$project$Main$LayoutMsg,
-						model.layout,
-						_List_fromArray(
-							[author$project$Material$Layout$fixedDrawer]),
-						{
-							drawer: _List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$text('Drawer element')
-								]),
-							header: author$project$Main$header(model),
-							main: _List_Nil,
-							tabs: _List_Nil
-						});
-				case 'Tablet':
-					return A4(
-						author$project$Material$Layout$view,
-						author$project$Main$LayoutMsg,
-						model.layout,
-						_List_fromArray(
-							[author$project$Material$Layout$smallScreen]),
-						{
-							drawer: _List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$text('Drawer element')
-								]),
-							header: author$project$Main$header(model),
-							main: _List_Nil,
-							tabs: _List_Nil
-						});
-				default:
-					return A4(
-						author$project$Material$Layout$view,
-						author$project$Main$LayoutMsg,
-						model.layout,
-						_List_fromArray(
-							[author$project$Material$Layout$smallScreen]),
-						{
-							drawer: _List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$text('Drawer element')
-								]),
-							header: author$project$Main$header(model),
-							main: _List_Nil,
-							tabs: _List_Nil
-						});
-			}
-		}());
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(mdgriffith$elm_ui$Element$fill)
+			]),
+		A4(
+			author$project$Material$Layout$Layout$view,
+			author$project$Main$LayoutMsg,
+			model.layout,
+			layoutAttributes,
+			{
+				drawer: drawerElements,
+				header: author$project$Main$header(model),
+				main: _List_Nil,
+				tabs: _List_Nil
+			}));
 };
 var author$project$Main$view = function (model) {
 	return {
@@ -12021,7 +12314,6 @@ var author$project$Main$view = function (model) {
 	};
 };
 var elm$browser$Browser$application = _Browser_application;
-var elm$json$Json$Decode$andThen = _Json_andThen;
 var author$project$Main$main = elm$browser$Browser$application(
 	{init: author$project$Main$init, onUrlChange: author$project$Main$UrlChanged, onUrlRequest: author$project$Main$LinkClicked, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(

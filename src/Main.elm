@@ -156,9 +156,28 @@ body model =
             , Drawer.divider
             , Drawer.item [] "Item 3"
             , Drawer.item [] "Item 4"
+            , Drawer.item [] "Item 5"
+            , Drawer.item [] "Item 6"
+            , Drawer.divider
+            , Drawer.item [] "Item 7"
+            , Drawer.item [] "Item 8"
+            , Drawer.item [] "Item 9"
+            , Drawer.item [] "Item 10"
+            , Drawer.item [] "Item 11"
+            , Drawer.item [] "Item 12"
+            , Drawer.item [] "Item 13"
+            , Drawer.item [] "Item 14"
+            , Drawer.item [] "Item 15"
+            , Drawer.item [] "Item 16"
+            , Drawer.item [] "Item 17"
+            , Drawer.item [] "Item 18"
+            , Drawer.item [] "Item 19"
+            , Drawer.item [] "Item 20"
+            , Drawer.item [] "Item 21"
+            , Drawer.item [] "Item 22"
             ]
     in
-    Element.layout []
+    Element.layout [ width fill, height fill ]
         (Layout.view LayoutMsg
             model.layout
             layoutAttributes

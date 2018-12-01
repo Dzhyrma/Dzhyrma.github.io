@@ -301,17 +301,17 @@ view lift model properties { header, drawer, tabs, main } =
     in
     if drawerIsFixed then
         if drawerIsClipped then
-            el
+            row
                 [ width fill
                 , height fill
                 , inFront headerElement
                 ]
-                (row
+                [ row
                     [ height fill
                     , paddingEach { top = 56, bottom = 0, left = 0, right = 0 }
                     ]
                     [ drawerElement ]
-                )
+                ]
 
         else
             row

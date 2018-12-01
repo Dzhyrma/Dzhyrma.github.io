@@ -18,6 +18,7 @@ view attributes elements =
          , Background.color (rgb255 255 255 255)
          , Border.widthEach { bottom = 0, top = 0, left = 0, right = 1 }
          , Border.color (rgba255 0 0 0 0.12)
+         , scrollbarY
          ]
             ++ attributes
         )
