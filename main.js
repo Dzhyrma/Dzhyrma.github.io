@@ -11884,7 +11884,7 @@ var author$project$Material$Layout$Layout$view = F4(
 					mdgriffith$elm_ui$Element$htmlAttribute(
 					A3(
 						mpizenberg$elm_pointer_events$Html$Events$Extra$Touch$onWithOptions,
-						'touchstart',
+						'touchend',
 						{preventDefault: false, stopPropagation: false},
 						A2(
 							elm$core$Basics$composeL,
