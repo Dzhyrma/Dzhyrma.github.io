@@ -1,5 +1,6 @@
 module Material.Layout.Layout exposing (Config, Contents, Header, Mode(..), Model, Msg, Property, clippedDrawer, defaultConfig, defaultModel, fixedDrawer, fixedHeader, fixedTabs, moreTabs, onSelectTab, rippleTabs, scrolling, seamed, selectedTab, smallScreen, transparentHeader, update, view, waterfall)
 
+import Dict
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
@@ -19,14 +20,14 @@ import Material.Options.Internal as Internal
 
 
 type alias Model =
-    { isDrawerOpen : Bool
+    { drawer : Drawer.Model
     , touchCoordinatesStart : Maybe ( Float, Float )
     }
 
 
 defaultModel : Model
 defaultModel =
-    { isDrawerOpen = False
+    { drawer = Drawer.defaultModel
     , touchCoordinatesStart = Nothing
     }
 
@@ -150,21 +151,27 @@ onSelectTab =
 
 type Msg
     = Noop
-    | ToggleDrawer
-    | TouchStartAt ( Float, Float )
-    | TouchEndAt ( Float, Float )
+    | DrawerToggle
+    | DrawerTouchStartAt ( Float, Float )
+    | DrawerTouchEndAt ( Float, Float )
+    | DrawerItemMouseEnter Int
+    | DrawerItemMouseLeave Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
+    let
+        drawerModel =
+            model.drawer
+    in
     case message of
         Noop ->
             ( model, Cmd.none )
 
-        ToggleDrawer ->
-            ( { model | isDrawerOpen = not model.isDrawerOpen }, Cmd.none )
+        DrawerToggle ->
+            ( { model | drawer = { drawerModel | isOpen = not drawerModel.isOpen } }, Cmd.none )
 
-        TouchStartAt coordinates ->
+        DrawerTouchStartAt coordinates ->
             case model.touchCoordinatesStart of
                 Just _ ->
                     ( model, Cmd.none )
@@ -172,7 +179,7 @@ update message model =
                 Nothing ->
                     ( { model | touchCoordinatesStart = Just coordinates }, Cmd.none )
 
-        TouchEndAt ( endX, endY ) ->
+        DrawerTouchEndAt ( endX, endY ) ->
             case model.touchCoordinatesStart of
                 Just ( startX, startY ) ->
                     let
@@ -199,12 +206,22 @@ update message model =
                                     False
 
                                 _ ->
-                                    model.isDrawerOpen
+                                    drawerModel.isOpen
                     in
-                    ( { model | touchCoordinatesStart = Nothing, isDrawerOpen = isDrawerOpen }, Cmd.none )
+                    ( { model | touchCoordinatesStart = Nothing, drawer = { drawerModel | isOpen = isDrawerOpen } }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        DrawerItemMouseEnter itemIndex ->
+            ( { model | drawer = { drawerModel | hovered = itemIndex } }, Cmd.none )
+
+        DrawerItemMouseLeave itemIndex ->
+            if model.drawer.hovered == itemIndex then
+                ( { model | drawer = { drawerModel | hovered = -1 } }, Cmd.none )
+
+            else
+                ( model, Cmd.none )
 
 
 
@@ -219,7 +236,7 @@ type alias Header msg =
 
 type alias Contents msg =
     { header : Header msg
-    , drawer : List (Element msg)
+    , drawer : List (Drawer.DrawerElement msg)
     , tabs : List (Element msg)
     , main : List (Element msg)
     }
@@ -244,7 +261,7 @@ view lift model properties { header, drawer, tabs, main } =
             config.clippedDrawer
 
         drawerIsVisible =
-            model.isDrawerOpen && not drawerIsFixed
+            model.drawer.isOpen && not drawerIsFixed
 
         headerDrawerButton =
             if hasDrawer && not drawerIsFixed then
@@ -270,14 +287,15 @@ view lift model properties { header, drawer, tabs, main } =
                             )
                     , htmlAttribute <| Html.Attributes.style "will-change" "transform"
                     , htmlAttribute <| Html.Attributes.style "transition" "all .25s"
-                    , htmlAttribute <| Touch.onWithOptions "touchstart" { stopPropagation = False, preventDefault = False } (lift << TouchStartAt << touchCoordinates)
-                    , htmlAttribute <| Touch.onWithOptions "touchend" { stopPropagation = False, preventDefault = False } (lift << TouchEndAt << touchCoordinates)
+                    , htmlAttribute <| Touch.onWithOptions "touchstart" { stopPropagation = False, preventDefault = False } (lift << DrawerTouchStartAt << touchCoordinates)
+                    , htmlAttribute <| Touch.onWithOptions "touchend" { stopPropagation = False, preventDefault = False } (lift << DrawerTouchEndAt << touchCoordinates)
                     ]
 
                  else
                     []
                 )
-                drawer
+                model.drawer
+                { elements = drawer, itemEvents = { onMouseEnter = lift << DrawerItemMouseEnter, onMouseLeave = lift << DrawerItemMouseLeave } }
 
         scrimElement =
             if drawerIsFixed then
@@ -289,7 +307,7 @@ view lift model properties { header, drawer, tabs, main } =
                         ((htmlAttribute <| Html.Attributes.style "will-change" "opacity")
                             :: (htmlAttribute <| Html.Attributes.style "transition" "all .25s")
                             :: (if drawerIsVisible then
-                                    [ Events.onClick (lift ToggleDrawer) ]
+                                    [ Events.onClick (lift DrawerToggle) ]
 
                                 else
                                     [ htmlAttribute <| Html.Attributes.style "pointer-events" "none"
@@ -371,7 +389,7 @@ drawerButton lift =
         [ padding 16
         , pointer
         , htmlAttribute <| Html.Attributes.type_ "button"
-        , Events.onClick (lift ToggleDrawer)
+        , Events.onClick (lift DrawerToggle)
         ]
         (Icon.button24 "menu" [] [])
 

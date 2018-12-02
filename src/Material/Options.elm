@@ -23,7 +23,7 @@ css key value =
     CSS ( key, value )
 
 
-styled : (List (Attribute m) -> a) -> List (Property c m) -> a
+styled : (List (Attribute msg) -> a) -> List (Property config msg) -> a
 styled element props =
     element
         (addAttributes

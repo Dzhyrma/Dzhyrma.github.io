@@ -4338,8 +4338,12 @@ var author$project$Main$UrlChanged = function (a) {
 	return {$: 'UrlChanged', a: a};
 };
 var elm$core$Basics$False = {$: 'False'};
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var author$project$Material$Layout$Drawer$defaultModel = {hovered: -1, isOpen: false};
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
-var author$project$Material$Layout$Layout$defaultModel = {isDrawerOpen: false, touchCoordinatesStart: elm$core$Maybe$Nothing};
+var author$project$Material$Layout$Layout$defaultModel = {drawer: author$project$Material$Layout$Drawer$defaultModel, touchCoordinatesStart: elm$core$Maybe$Nothing};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -5577,25 +5581,27 @@ var author$project$Material$Helpers$lift = F6(
 			A2(set, model, innerModel),
 			A2(elm$core$Platform$Cmd$map, fwd, e));
 	});
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
 var elm$core$Basics$not = _Basics_not;
 var author$project$Material$Layout$Layout$update = F2(
 	function (message, model) {
+		var drawerModel = model.drawer;
 		switch (message.$) {
 			case 'Noop':
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-			case 'ToggleDrawer':
+			case 'DrawerToggle':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{isDrawerOpen: !model.isDrawerOpen}),
+						{
+							drawer: _Utils_update(
+								drawerModel,
+								{isOpen: !drawerModel.isOpen})
+						}),
 					elm$core$Platform$Cmd$none);
-			case 'TouchStartAt':
+			case 'DrawerTouchStartAt':
 				var coordinates = message.a;
 				var _n1 = model.touchCoordinatesStart;
 				if (_n1.$ === 'Just') {
@@ -5609,7 +5615,7 @@ var author$project$Material$Layout$Layout$update = F2(
 							}),
 						elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'DrawerTouchEndAt':
 				var _n2 = message.a;
 				var endX = _n2.a;
 				var endY = _n2.b;
@@ -5627,17 +5633,44 @@ var author$project$Material$Layout$Layout$update = F2(
 						if ((swipeLeft.$ === 'Just') && swipeLeft.a) {
 							return false;
 						} else {
-							return model.isDrawerOpen;
+							return drawerModel.isOpen;
 						}
 					}();
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{isDrawerOpen: isDrawerOpen, touchCoordinatesStart: elm$core$Maybe$Nothing}),
+							{
+								drawer: _Utils_update(
+									drawerModel,
+									{isOpen: isDrawerOpen}),
+								touchCoordinatesStart: elm$core$Maybe$Nothing
+							}),
 						elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
+			case 'DrawerItemMouseEnter':
+				var itemIndex = message.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							drawer: _Utils_update(
+								drawerModel,
+								{hovered: itemIndex})
+						}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var itemIndex = message.a;
+				return _Utils_eq(model.drawer.hovered, itemIndex) ? _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							drawer: _Utils_update(
+								drawerModel,
+								{hovered: -1})
+						}),
+					elm$core$Platform$Cmd$none) : _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
@@ -5877,6 +5910,9 @@ var author$project$Main$header = function (model) {
 				author$project$Material$Icon$i('search'),
 				author$project$Material$Icon$i('more_vert')
 			]));
+};
+var author$project$Material$Layout$Drawer$Static = function (a) {
+	return {$: 'Static', a: a};
 };
 var mdgriffith$elm_ui$Internal$Model$Height = function (a) {
 	return {$: 'Height', a: a};
@@ -11202,21 +11238,25 @@ var mdgriffith$elm_ui$Element$Border$widthEach = function (_n0) {
 			bottom,
 			left));
 };
-var author$project$Material$Layout$Drawer$divider = A2(
-	mdgriffith$elm_ui$Element$el,
-	_List_fromArray(
-		[
-			mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-			mdgriffith$elm_ui$Element$height(
-			mdgriffith$elm_ui$Element$px(1)),
-			mdgriffith$elm_ui$Element$Border$widthEach(
-			{bottom: 1, left: 0, right: 0, top: 0}),
-			mdgriffith$elm_ui$Element$Border$color(
-			A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.12)),
-			mdgriffith$elm_ui$Element$paddingEach(
-			{bottom: 0, left: 0, right: 0, top: 8})
-		]),
-	mdgriffith$elm_ui$Element$none);
+var author$project$Material$Layout$Drawer$divider = author$project$Material$Layout$Drawer$Static(
+	A2(
+		mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+				mdgriffith$elm_ui$Element$height(
+				mdgriffith$elm_ui$Element$px(1)),
+				mdgriffith$elm_ui$Element$Border$widthEach(
+				{bottom: 1, left: 0, right: 0, top: 0}),
+				mdgriffith$elm_ui$Element$Border$color(
+				A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.12)),
+				mdgriffith$elm_ui$Element$paddingEach(
+				{bottom: 0, left: 0, right: 0, top: 8})
+			]),
+		mdgriffith$elm_ui$Element$none));
+var author$project$Material$Layout$Drawer$Clickable = function (a) {
+	return {$: 'Clickable', a: a};
+};
 var mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
 	return {$: 'AlignY', a: a};
 };
@@ -11292,8 +11332,8 @@ var mdgriffith$elm_ui$Element$Font$size = function (i) {
 		mdgriffith$elm_ui$Internal$Flag$fontSize,
 		mdgriffith$elm_ui$Internal$Model$FontSize(i));
 };
-var author$project$Material$Layout$Drawer$item = F2(
-	function (attributes, itemText) {
+var author$project$Material$Layout$Drawer$item_ = F3(
+	function (attributes, itemText, drawerAttributes) {
 		return A2(
 			mdgriffith$elm_ui$Element$row,
 			_Utils_ap(
@@ -11307,7 +11347,7 @@ var author$project$Material$Layout$Drawer$item = F2(
 						A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.87)),
 						mdgriffith$elm_ui$Element$Font$size(16)
 					]),
-				attributes),
+				_Utils_ap(attributes, drawerAttributes)),
 			_List_fromArray(
 				[
 					A2(
@@ -11316,6 +11356,11 @@ var author$project$Material$Layout$Drawer$item = F2(
 						[mdgriffith$elm_ui$Element$centerY]),
 					mdgriffith$elm_ui$Element$text(itemText))
 				]));
+	});
+var author$project$Material$Layout$Drawer$item = F2(
+	function (attributes, itemText) {
+		return author$project$Material$Layout$Drawer$Clickable(
+			A2(author$project$Material$Layout$Drawer$item_, attributes, itemText));
 	});
 var mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
 var mdgriffith$elm_ui$Internal$Model$asColumn = mdgriffith$elm_ui$Internal$Model$AsColumn;
@@ -11358,41 +11403,42 @@ var mdgriffith$elm_ui$Element$spacing = function (x) {
 };
 var author$project$Material$Layout$Drawer$title = F2(
 	function (titleText, subtitleText) {
-		return A2(
-			mdgriffith$elm_ui$Element$column,
-			_List_fromArray(
-				[
-					mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
-					mdgriffith$elm_ui$Element$height(
-					mdgriffith$elm_ui$Element$px(64)),
-					A2(mdgriffith$elm_ui$Element$paddingXY, 16, 0),
-					mdgriffith$elm_ui$Element$spacing(6)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					mdgriffith$elm_ui$Element$el,
-					_List_fromArray(
-						[mdgriffith$elm_ui$Element$centerY]),
-					mdgriffith$elm_ui$Element$text(titleText)),
-					function () {
-					if (subtitleText.$ === 'Just') {
-						var subtitle = subtitleText.a;
-						return A2(
-							mdgriffith$elm_ui$Element$el,
-							_List_fromArray(
-								[
-									mdgriffith$elm_ui$Element$centerY,
-									mdgriffith$elm_ui$Element$Font$color(
-									A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.54)),
-									mdgriffith$elm_ui$Element$Font$size(13)
-								]),
-							mdgriffith$elm_ui$Element$text(subtitle));
-					} else {
-						return mdgriffith$elm_ui$Element$none;
-					}
-				}()
-				]));
+		return author$project$Material$Layout$Drawer$Static(
+			A2(
+				mdgriffith$elm_ui$Element$column,
+				_List_fromArray(
+					[
+						mdgriffith$elm_ui$Element$width(mdgriffith$elm_ui$Element$fill),
+						mdgriffith$elm_ui$Element$height(
+						mdgriffith$elm_ui$Element$px(64)),
+						A2(mdgriffith$elm_ui$Element$paddingXY, 16, 0),
+						mdgriffith$elm_ui$Element$spacing(6)
+					]),
+				_List_fromArray(
+					[
+						A2(
+						mdgriffith$elm_ui$Element$el,
+						_List_fromArray(
+							[mdgriffith$elm_ui$Element$centerY]),
+						mdgriffith$elm_ui$Element$text(titleText)),
+						function () {
+						if (subtitleText.$ === 'Just') {
+							var subtitle = subtitleText.a;
+							return A2(
+								mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[
+										mdgriffith$elm_ui$Element$centerY,
+										mdgriffith$elm_ui$Element$Font$color(
+										A4(mdgriffith$elm_ui$Element$rgba255, 0, 0, 0, 0.54)),
+										mdgriffith$elm_ui$Element$Font$size(13)
+									]),
+								mdgriffith$elm_ui$Element$text(subtitle));
+						} else {
+							return mdgriffith$elm_ui$Element$none;
+						}
+					}()
+					])));
 	});
 var author$project$Material$Options$Internal$Set = function (a) {
 	return {$: 'Set', a: a};
@@ -11416,16 +11462,7 @@ var author$project$Material$Layout$Layout$smallScreen = author$project$Material$
 			config,
 			{smallScreen: true});
 	});
-var mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
-	});
-var mdgriffith$elm_ui$Internal$Flag$overflow = mdgriffith$elm_ui$Internal$Flag$flag(20);
-var mdgriffith$elm_ui$Internal$Model$Class = F2(
-	function (a, b) {
-		return {$: 'Class', a: a, b: b};
-	});
-var mdgriffith$elm_ui$Element$scrollbarY = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$overflow, mdgriffith$elm_ui$Internal$Style$classes.scrollbarsY);
+var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
 var mdgriffith$elm_ui$Internal$Flag$bgColor = mdgriffith$elm_ui$Internal$Flag$flag(8);
 var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 	return A2(
@@ -11437,8 +11474,73 @@ var mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
-var author$project$Material$Layout$Drawer$view = F2(
-	function (attributes, elements) {
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onMouseEnter = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'mouseenter',
+		elm$json$Json$Decode$succeed(msg));
+};
+var mdgriffith$elm_ui$Element$Events$onMouseEnter = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onMouseEnter);
+var elm$html$Html$Events$onMouseLeave = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'mouseleave',
+		elm$json$Json$Decode$succeed(msg));
+};
+var mdgriffith$elm_ui$Element$Events$onMouseLeave = A2(elm$core$Basics$composeL, mdgriffith$elm_ui$Internal$Model$Attr, elm$html$Html$Events$onMouseLeave);
+var author$project$Material$Layout$Drawer$transform_ = F3(
+	function (_n0, model, elements) {
+		var onMouseEnter = _n0.onMouseEnter;
+		var onMouseLeave = _n0.onMouseLeave;
+		return A2(
+			elm$core$List$indexedMap,
+			F2(
+				function (i, drawerElement) {
+					if (drawerElement.$ === 'Clickable') {
+						var element = drawerElement.a;
+						return element(
+							_List_fromArray(
+								[
+									mdgriffith$elm_ui$Element$Events$onMouseEnter(
+									onMouseEnter(i)),
+									mdgriffith$elm_ui$Element$Events$onMouseLeave(
+									onMouseLeave(i)),
+									_Utils_eq(i, model.hovered) ? mdgriffith$elm_ui$Element$Background$color(
+									A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 4.0e-2)) : mdgriffith$elm_ui$Element$Background$color(
+									A4(mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0))
+								]));
+					} else {
+						var element = drawerElement.a;
+						return element;
+					}
+				}),
+			elements);
+	});
+var mdgriffith$elm_ui$Element$rgb255 = F3(
+	function (red, green, blue) {
+		return A4(mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
+	});
+var mdgriffith$elm_ui$Internal$Flag$overflow = mdgriffith$elm_ui$Internal$Flag$flag(20);
+var mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
+var mdgriffith$elm_ui$Element$scrollbarY = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$overflow, mdgriffith$elm_ui$Internal$Style$classes.scrollbarsY);
+var author$project$Material$Layout$Drawer$view = F3(
+	function (attributes, model, _n0) {
+		var elements = _n0.elements;
+		var itemEvents = _n0.itemEvents;
 		return A2(
 			mdgriffith$elm_ui$Element$column,
 			_Utils_ap(
@@ -11456,14 +11558,20 @@ var author$project$Material$Layout$Drawer$view = F2(
 						mdgriffith$elm_ui$Element$scrollbarY
 					]),
 				attributes),
-			elements);
+			A3(author$project$Material$Layout$Drawer$transform_, itemEvents, model, elements));
 	});
-var author$project$Material$Layout$Layout$ToggleDrawer = {$: 'ToggleDrawer'};
-var author$project$Material$Layout$Layout$TouchEndAt = function (a) {
-	return {$: 'TouchEndAt', a: a};
+var author$project$Material$Layout$Layout$DrawerItemMouseEnter = function (a) {
+	return {$: 'DrawerItemMouseEnter', a: a};
 };
-var author$project$Material$Layout$Layout$TouchStartAt = function (a) {
-	return {$: 'TouchStartAt', a: a};
+var author$project$Material$Layout$Layout$DrawerItemMouseLeave = function (a) {
+	return {$: 'DrawerItemMouseLeave', a: a};
+};
+var author$project$Material$Layout$Layout$DrawerToggle = {$: 'DrawerToggle'};
+var author$project$Material$Layout$Layout$DrawerTouchEndAt = function (a) {
+	return {$: 'DrawerTouchEndAt', a: a};
+};
+var author$project$Material$Layout$Layout$DrawerTouchStartAt = function (a) {
+	return {$: 'DrawerTouchStartAt', a: a};
 };
 var author$project$Material$Layout$Layout$Standard = {$: 'Standard'};
 var author$project$Material$Layout$Layout$defaultConfig = {clippedDrawer: false, fixedDrawer: false, fixedHeader: false, fixedTabs: false, mode: author$project$Material$Layout$Layout$Standard, moreTabs: false, onSelectTab: elm$core$Maybe$Nothing, rippleTabs: true, selectedTab: -1, smallScreen: false, transparentHeader: false};
@@ -11545,17 +11653,6 @@ var mdgriffith$elm_ui$Element$padding = function (x) {
 };
 var mdgriffith$elm_ui$Internal$Flag$cursor = mdgriffith$elm_ui$Internal$Flag$flag(21);
 var mdgriffith$elm_ui$Element$pointer = A2(mdgriffith$elm_ui$Internal$Model$Class, mdgriffith$elm_ui$Internal$Flag$cursor, mdgriffith$elm_ui$Internal$Style$classes.cursorPointer);
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
 var elm$html$Html$Events$onClick = function (msg) {
 	return A2(
 		elm$html$Html$Events$on,
@@ -11573,7 +11670,7 @@ var author$project$Material$Layout$Layout$drawerButton = function (lift) {
 				mdgriffith$elm_ui$Element$htmlAttribute(
 				elm$html$Html$Attributes$type_('button')),
 				mdgriffith$elm_ui$Element$Events$onClick(
-				lift(author$project$Material$Layout$Layout$ToggleDrawer))
+				lift(author$project$Material$Layout$Layout$DrawerToggle))
 			]),
 		A3(author$project$Material$Icon$button24, 'menu', _List_Nil, _List_Nil));
 };
@@ -11636,7 +11733,6 @@ var author$project$Material$Layout$Layout$headerView = F3(
 						header.actionButtons))
 				]));
 	});
-var mdgriffith$elm_ui$Element$rgba = mdgriffith$elm_ui$Internal$Model$Rgba;
 var author$project$Material$Layout$Layout$scrim = F2(
 	function (lift, attributes) {
 		return A2(
@@ -11856,8 +11952,8 @@ var author$project$Material$Layout$Layout$view = F4(
 		var config = summary.config;
 		var drawerIsClipped = config.clippedDrawer;
 		var drawerIsFixed = config.fixedDrawer && (!config.smallScreen);
-		var drawerIsVisible = model.isDrawerOpen && (!drawerIsFixed);
-		var drawerElement = A2(
+		var drawerIsVisible = model.drawer.isOpen && (!drawerIsFixed);
+		var drawerElement = A3(
 			author$project$Material$Layout$Drawer$view,
 			(!drawerIsFixed) ? _List_fromArray(
 				[
@@ -11879,7 +11975,7 @@ var author$project$Material$Layout$Layout$view = F4(
 						{preventDefault: false, stopPropagation: false},
 						A2(
 							elm$core$Basics$composeL,
-							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchStartAt),
+							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$DrawerTouchStartAt),
 							author$project$Material$Layout$Layout$touchCoordinates))),
 					mdgriffith$elm_ui$Element$htmlAttribute(
 					A3(
@@ -11888,10 +11984,17 @@ var author$project$Material$Layout$Layout$view = F4(
 						{preventDefault: false, stopPropagation: false},
 						A2(
 							elm$core$Basics$composeL,
-							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$TouchEndAt),
+							A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$DrawerTouchEndAt),
 							author$project$Material$Layout$Layout$touchCoordinates)))
 				]) : _List_Nil,
-			drawer);
+			model.drawer,
+			{
+				elements: drawer,
+				itemEvents: {
+					onMouseEnter: A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$DrawerItemMouseEnter),
+					onMouseLeave: A2(elm$core$Basics$composeL, lift, author$project$Material$Layout$Layout$DrawerItemMouseLeave)
+				}
+			});
 		var headerDrawerButton = (hasDrawer && (!drawerIsFixed)) ? elm$core$Maybe$Just(
 			author$project$Material$Layout$Layout$drawerButton(lift)) : elm$core$Maybe$Nothing;
 		var scrimElement = drawerIsFixed ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(
@@ -11909,7 +12012,7 @@ var author$project$Material$Layout$Layout$view = F4(
 						drawerIsVisible ? _List_fromArray(
 							[
 								mdgriffith$elm_ui$Element$Events$onClick(
-								lift(author$project$Material$Layout$Layout$ToggleDrawer))
+								lift(author$project$Material$Layout$Layout$DrawerToggle))
 							]) : _List_fromArray(
 							[
 								mdgriffith$elm_ui$Element$htmlAttribute(
